@@ -4,6 +4,13 @@ options:
   deploymentTarget:
     macOS: "13.0"
   xcodeVersion: "15.0"
+  createIntermediateGroups: true
+  generateEmptyDirectories: true
+
+packages:
+  KeyboardShortcuts:
+    url: https://github.com/sindresorhus/KeyboardShortcuts
+    from: "2.0.0"
 
 settings:
   base:
@@ -17,6 +24,8 @@ targets:
     platform: macOS
     sources:
       - NvrEndingTxt
+    dependencies:
+      - package: KeyboardShortcuts
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.nvr.NvrEndingTxt
@@ -31,3 +40,5 @@ targets:
         LSUIElement: true
         CFBundleDisplayName: nvr-ending
         NSHumanReadableCopyright: ""
+    scheme:
+      gatherCoverageData: false

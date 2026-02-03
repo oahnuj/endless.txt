@@ -3,31 +3,59 @@ import SwiftUI
 struct ContentView: View {
     @ObservedObject private var fileService = FileService.shared
     @ObservedObject private var settings = AppSettings.shared
+    @StateObject private var searchState = SearchState()
 
     var body: some View {
         GeometryReader { geometry in
-            VStack(spacing: 0) {
-                // Drag handle area at top (for borderless window)
-                DragHandleView()
-                    .frame(height: 20)
+            ZStack(alignment: .topTrailing) {
+                // Main content
+                VStack(spacing: 0) {
+                    // Drag handle area at top (for borderless window)
+                    DragHandleView()
+                        .frame(height: 20)
 
-                // Main editor area - 70% of remaining height
-                EditorView(content: $fileService.content)
-                    .frame(height: (geometry.size.height - 21) * 0.7)
+                    // Main editor area - 70% of remaining height
+                    EditorView(content: $fileService.content, searchState: searchState)
+                        .frame(height: (geometry.size.height - 21) * 0.7)
 
-                // Subtle separator - no extra spacing
-                Rectangle()
-                    .fill(settings.theme.secondaryTextColor.opacity(0.2))
-                    .frame(height: 1)
+                    // Subtle separator - no extra spacing
+                    Rectangle()
+                        .fill(settings.theme.secondaryTextColor.opacity(0.2))
+                        .frame(height: 1)
 
-                // Quick entry at bottom - 30% of remaining height
-                QuickEntryView()
-                    .frame(height: (geometry.size.height - 21) * 0.3)
+                    // Quick entry at bottom - 30% of remaining height
+                    QuickEntryView()
+                        .frame(height: (geometry.size.height - 21) * 0.3)
+                }
+
+                // Search bar overlay (top-right, translucent)
+                if searchState.isVisible {
+                    SearchBarView(searchState: searchState)
+                        .padding(.top, 28)
+                        .padding(.trailing, 12)
+                        .transition(.opacity.combined(with: .move(edge: .top)))
+                }
             }
         }
         .frame(minWidth: 400, minHeight: 400)
         .background(settings.theme.backgroundColor)
         .clipShape(RoundedRectangle(cornerRadius: 12))
+        .onReceive(NotificationCenter.default.publisher(for: .toggleSearch)) { _ in
+            withAnimation(.easeInOut(duration: 0.15)) {
+                searchState.isVisible.toggle()
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .showSearch)) { _ in
+            withAnimation(.easeInOut(duration: 0.15)) {
+                searchState.isVisible = true
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .dismissSearch)) { _ in
+            withAnimation(.easeInOut(duration: 0.15)) {
+                // Don't reset query - keep it cached
+                searchState.isVisible = false
+            }
+        }
     }
 }
 
@@ -50,43 +78,17 @@ struct DragHandleView: View {
 
 struct EditorView: View {
     @Binding var content: String
+    @ObservedObject var searchState: SearchState
     @ObservedObject private var fileService = FileService.shared
     @ObservedObject private var settings = AppSettings.shared
 
     var body: some View {
-        ScrollViewReader { proxy in
-            ScrollView {
-                TextEditor(text: $content)
-                    .font(.custom(settings.fontName, size: settings.fontSize))
-                    .foregroundColor(settings.theme.textColor)
-                    .scrollContentBackground(.hidden)
-                    .scrollDisabled(true)
-                    .frame(minHeight: 250)
-                    .onChange(of: content) { _ in
-                        fileService.save()
-                    }
-
-                // Anchor for scrolling to bottom
-                Color.clear
-                    .frame(height: 1)
-                    .id("bottom")
+        EditorTextView(text: $content, searchState: searchState)
+            .onChange(of: content) { _ in
+                fileService.save()
             }
-            .scrollIndicators(.hidden)
-            .onAppear {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    withAnimation {
-                        proxy.scrollTo("bottom", anchor: .bottom)
-                    }
-                }
-            }
-            .onReceive(NotificationCenter.default.publisher(for: .scrollToBottom)) { _ in
-                withAnimation {
-                    proxy.scrollTo("bottom", anchor: .bottom)
-                }
-            }
-        }
-        .padding(.horizontal, 12)
-        .background(settings.theme.backgroundColor)
+            .padding(.horizontal, 4)
+            .background(settings.theme.backgroundColor)
     }
 }
 
@@ -94,6 +96,7 @@ struct EditorView: View {
 
 extension Notification.Name {
     static let scrollToBottom = Notification.Name("scrollToBottom")
+    static let toggleSearch = Notification.Name("toggleSearch")
 }
 
 #Preview {

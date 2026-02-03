@@ -8,32 +8,50 @@
 
 /* Begin PBXBuildFile section */
 		0B33C7629E9ED965F75E3D0F /* LaunchAtLoginManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 673393AF70E5AECC35F19C75 /* LaunchAtLoginManager.swift */; };
+		1B25743F10E2EB27750A7230 /* KeyboardShortcutsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82329AD5DBAD8E2342E90D72 /* KeyboardShortcutsManager.swift */; };
 		1B390E1E3C98BFF01E9B2709 /* HotkeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8611FEE839F1FDD2E030E25D /* HotkeyManager.swift */; };
 		65C524D0F0D904D3FB142A9F /* FileService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B89679B3749ED7F33183D02 /* FileService.swift */; };
+		68C7346347C2BEAEFA267BD6 /* KeyboardShortcuts in Frameworks */ = {isa = PBXBuildFile; productRef = A29FB9797D0A739BF95C0A76 /* KeyboardShortcuts */; };
 		88117BF056AA37B702BE8C4E /* NvrEndingTxtApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBE08AB8979514A0EB2F82C5 /* NvrEndingTxtApp.swift */; };
 		900258985A7C901A0DFD5C47 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0E43D1CAE1959BAF6DD3B1 /* ContentView.swift */; };
 		A2161914FA13382AB1920011 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE5DBA13A1C14B8456D455C6 /* AppSettings.swift */; };
 		AAC8033CFD59FE848F3C67F7 /* QuickEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 397ACBE35332E859ECF8FAAE /* QuickEntryView.swift */; };
 		AC3A575B13D791BD466C3047 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B89BEA19AA88374677C3982 /* SettingsView.swift */; };
 		AFB7908052EE12E7F9B90328 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A7213A3D4B3E659F930E692 /* AppDelegate.swift */; };
+		B6E4619B1CF6A9E7B4FCB6E2 /* SearchBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55DD12AB1AA826032C560527 /* SearchBarView.swift */; };
+		BF97E15D5A89491F5C010110 /* EditorTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1BDD3E6095EEA17B7466E42 /* EditorTextView.swift */; };
 		DC180C58ECD295EF30EF952D /* FloatingPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B843CDF3D0F50196431A7BE /* FloatingPanel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		397ACBE35332E859ECF8FAAE /* QuickEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickEntryView.swift; sourceTree = "<group>"; };
 		4B89BEA19AA88374677C3982 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		55DD12AB1AA826032C560527 /* SearchBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchBarView.swift; sourceTree = "<group>"; };
 		5A7213A3D4B3E659F930E692 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		61EC2A47E1418B0CA69F41AE /* NvrEndingTxt.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = NvrEndingTxt.entitlements; sourceTree = "<group>"; };
 		673393AF70E5AECC35F19C75 /* LaunchAtLoginManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchAtLoginManager.swift; sourceTree = "<group>"; };
 		6B843CDF3D0F50196431A7BE /* FloatingPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingPanel.swift; sourceTree = "<group>"; };
 		6FD1CA44F8889740A6C934F1 /* NvrEndingTxt.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NvrEndingTxt.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		82329AD5DBAD8E2342E90D72 /* KeyboardShortcutsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardShortcutsManager.swift; sourceTree = "<group>"; };
 		8611FEE839F1FDD2E030E25D /* HotkeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyManager.swift; sourceTree = "<group>"; };
 		9B89679B3749ED7F33183D02 /* FileService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileService.swift; sourceTree = "<group>"; };
 		BB0E43D1CAE1959BAF6DD3B1 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		BEB0FCCD03B960368205F424 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		CE5DBA13A1C14B8456D455C6 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
+		F1BDD3E6095EEA17B7466E42 /* EditorTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorTextView.swift; sourceTree = "<group>"; };
 		FBE08AB8979514A0EB2F82C5 /* NvrEndingTxtApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NvrEndingTxtApp.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		AABE7025797C255FE59C068C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				68C7346347C2BEAEFA267BD6 /* KeyboardShortcuts in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		32F186C9F6D409894BB33B25 /* Services */ = {
@@ -41,6 +59,7 @@
 			children = (
 				9B89679B3749ED7F33183D02 /* FileService.swift */,
 				8611FEE839F1FDD2E030E25D /* HotkeyManager.swift */,
+				82329AD5DBAD8E2342E90D72 /* KeyboardShortcutsManager.swift */,
 				673393AF70E5AECC35F19C75 /* LaunchAtLoginManager.swift */,
 			);
 			path = Services;
@@ -88,8 +107,10 @@
 			isa = PBXGroup;
 			children = (
 				BB0E43D1CAE1959BAF6DD3B1 /* ContentView.swift */,
+				F1BDD3E6095EEA17B7466E42 /* EditorTextView.swift */,
 				6B843CDF3D0F50196431A7BE /* FloatingPanel.swift */,
 				397ACBE35332E859ECF8FAAE /* QuickEntryView.swift */,
+				55DD12AB1AA826032C560527 /* SearchBarView.swift */,
 				4B89BEA19AA88374677C3982 /* SettingsView.swift */,
 			);
 			path = Views;
@@ -103,6 +124,7 @@
 			buildConfigurationList = D40D12F865D53526F5596DA4 /* Build configuration list for PBXNativeTarget "NvrEndingTxt" */;
 			buildPhases = (
 				A3644DC6F975BA166E80FE8E /* Sources */,
+				AABE7025797C255FE59C068C /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -110,6 +132,7 @@
 			);
 			name = NvrEndingTxt;
 			packageProductDependencies = (
+				A29FB9797D0A739BF95C0A76 /* KeyboardShortcuts */,
 			);
 			productName = NvrEndingTxt;
 			productReference = 6FD1CA44F8889740A6C934F1 /* NvrEndingTxt.app */;
@@ -140,6 +163,9 @@
 			);
 			mainGroup = A1754F4B8EEE0D2229B347AE;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				121803A86CDBA937FD25C0A4 /* XCRemoteSwiftPackageReference "KeyboardShortcuts" */,
+			);
 			preferredProjectObjectVersion = 77;
 			projectDirPath = "";
 			projectRoot = "";
@@ -157,12 +183,15 @@
 				AFB7908052EE12E7F9B90328 /* AppDelegate.swift in Sources */,
 				A2161914FA13382AB1920011 /* AppSettings.swift in Sources */,
 				900258985A7C901A0DFD5C47 /* ContentView.swift in Sources */,
+				BF97E15D5A89491F5C010110 /* EditorTextView.swift in Sources */,
 				65C524D0F0D904D3FB142A9F /* FileService.swift in Sources */,
 				DC180C58ECD295EF30EF952D /* FloatingPanel.swift in Sources */,
 				1B390E1E3C98BFF01E9B2709 /* HotkeyManager.swift in Sources */,
+				1B25743F10E2EB27750A7230 /* KeyboardShortcutsManager.swift in Sources */,
 				0B33C7629E9ED965F75E3D0F /* LaunchAtLoginManager.swift in Sources */,
 				88117BF056AA37B702BE8C4E /* NvrEndingTxtApp.swift in Sources */,
 				AAC8033CFD59FE848F3C67F7 /* QuickEntryView.swift in Sources */,
+				B6E4619B1CF6A9E7B4FCB6E2 /* SearchBarView.swift in Sources */,
 				AC3A575B13D791BD466C3047 /* SettingsView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -347,6 +376,25 @@
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		121803A86CDBA937FD25C0A4 /* XCRemoteSwiftPackageReference "KeyboardShortcuts" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sindresorhus/KeyboardShortcuts";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		A29FB9797D0A739BF95C0A76 /* KeyboardShortcuts */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 121803A86CDBA937FD25C0A4 /* XCRemoteSwiftPackageReference "KeyboardShortcuts" */;
+			productName = KeyboardShortcuts;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 996F33E12A721707367CED60 /* Project object */;
 }

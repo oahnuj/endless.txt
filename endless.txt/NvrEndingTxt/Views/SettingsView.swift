@@ -1,38 +1,97 @@
 import SwiftUI
 import ServiceManagement
 import Carbon
+import KeyboardShortcuts
+
+enum SettingsTab: Int, CaseIterable {
+    case general = 0
+    case appearance = 1
+    case shortcuts = 2
+    case about = 3
+}
 
 struct SettingsView: View {
     @ObservedObject private var settings = AppSettings.shared
     @State private var launchAtLogin: Bool = false
+    @State private var selectedTab: SettingsTab = .general
 
     var body: some View {
-        TabView {
+        TabView(selection: $selectedTab) {
             GeneralSettingsView(launchAtLogin: $launchAtLogin)
                 .tabItem {
                     Label("General", systemImage: "gear")
                 }
+                .tag(SettingsTab.general)
 
             AppearanceSettingsView()
                 .tabItem {
                     Label("Appearance", systemImage: "paintbrush")
                 }
+                .tag(SettingsTab.appearance)
 
             ShortcutsSettingsView()
                 .tabItem {
                     Label("Shortcuts", systemImage: "keyboard")
                 }
+                .tag(SettingsTab.shortcuts)
 
             AboutView()
                 .tabItem {
                     Label("About", systemImage: "info.circle")
                 }
+                .tag(SettingsTab.about)
         }
-        .frame(width: 440, height: 360)
+        .frame(width: 440, height: 420)
         .onAppear {
             if #available(macOS 13.0, *) {
                 launchAtLogin = SMAppService.mainApp.status == .enabled
             }
+        }
+        .background(TabKeyHandler(selectedTab: $selectedTab))
+    }
+}
+
+// MARK: - Tab Key Handler
+
+struct TabKeyHandler: NSViewRepresentable {
+    @Binding var selectedTab: SettingsTab
+
+    func makeNSView(context: Context) -> NSView {
+        let view = TabKeyView()
+        view.onTab = { [self] shift in
+            cycleTab(shift: shift)
+        }
+        return view
+    }
+
+    func updateNSView(_ nsView: NSView, context: Context) {}
+
+    private func cycleTab(shift: Bool) {
+        let allTabs = SettingsTab.allCases
+        guard let currentIndex = allTabs.firstIndex(of: selectedTab) else { return }
+
+        let nextIndex: Int
+        if shift {
+            nextIndex = currentIndex == 0 ? allTabs.count - 1 : currentIndex - 1
+        } else {
+            nextIndex = (currentIndex + 1) % allTabs.count
+        }
+
+        selectedTab = allTabs[nextIndex]
+    }
+}
+
+class TabKeyView: NSView {
+    var onTab: ((Bool) -> Void)?
+
+    override var acceptsFirstResponder: Bool { true }
+
+    override func keyDown(with event: NSEvent) {
+        if event.keyCode == 48 { // Tab
+            let shift = event.modifierFlags.contains(.shift)
+            onTab?(shift)
+        } else {
+            super.keyDown(with: event)
         }
     }
 }
@@ -45,6 +104,10 @@ struct GeneralSettingsView: View {
     @State private var showFilePicker = false
     @State private var loginItemStatus: String = ""
     @State private var showLoginItemAlert = false
+    @State private var loginItemError: String = ""
+    @State private var currentTimePreview: String = ""
+
+    private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
     var body: some View {
         ScrollView {
@@ -64,6 +127,12 @@ struct GeneralSettingsView: View {
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                         }
+                    }
+
+                    if !loginItemError.isEmpty {
+                        Text(loginItemError)
+                            .font(.caption)
+                            .foregroundColor(.red)
                     }
 
                     if loginItemStatus == "requiresApproval" {
@@ -117,6 +186,16 @@ struct GeneralSettingsView: View {
                     Text("Preview: \(currentTimePreview)")
                         .font(.caption)
                         .foregroundColor(.secondary)
+                        .monospacedDigit()
+                }
+
+                Section("Entries") {
+                    Toggle("Show timestamps", isOn: $settings.showTimestamps)
+
+                    Toggle("Auto-insert day separator", isOn: $settings.autoInsertDaySeparator)
+                    Text("Adds \"---\" between entries from different days")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
                 }
             }
             .formStyle(.grouped)
@@ -124,6 +203,16 @@ struct GeneralSettingsView: View {
         .scrollIndicators(.hidden)
         .onAppear {
             checkLoginItemStatus()
+            updateTimePreview()
+        }
+        .onReceive(timer) { _ in
+            updateTimePreview()
+        }
+        .onChange(of: settings.timezoneId) { _ in
+            updateTimePreview()
+        }
+        .onChange(of: settings.timestampFormat) { _ in
+            updateTimePreview()
         }
         .fileImporter(
             isPresented: $showFilePicker,
@@ -152,11 +241,14 @@ struct GeneralSettingsView: View {
         }
     }
 
-    private var currentTimePreview: String {
+    private func updateTimePreview() {
         let formatter = DateFormatter()
-        formatter.dateFormat = settings.timestampFormat
+        // Always show seconds in preview for a "live" feel
+        formatter.dateFormat = settings.timestampFormat.contains("ss")
+            ? settings.timestampFormat
+            : settings.timestampFormat + ":ss"
         formatter.timeZone = settings.timezone
-        return formatter.string(from: Date())
+        currentTimePreview = formatter.string(from: Date())
     }
 
     private func checkLoginItemStatus() {
@@ -178,6 +270,7 @@ struct GeneralSettingsView: View {
 
     private func updateLaunchAtLogin(enabled: Bool) {
         if #available(macOS 13.0, *) {
+            loginItemError = ""
             do {
                 if enabled {
                     try SMAppService.mainApp.register()
@@ -191,7 +284,14 @@ struct GeneralSettingsView: View {
                     }
                 }
             } catch {
-                checkLoginItemStatus()
+                // Show the error to the user
+                loginItemError = "Failed: \(error.localizedDescription)"
+                print("Login item error: \(error)")
+
+                // Revert toggle to actual state
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    checkLoginItemStatus()
+                }
             }
         }
     }
@@ -267,14 +367,13 @@ struct AppearanceSettingsView: View {
 struct ShortcutsSettingsView: View {
     @ObservedObject private var settings = AppSettings.shared
     @State private var isRecording = false
-    @State private var recordedShortcut: ShortcutKey?
 
     var body: some View {
         ScrollView {
             Form {
                 Section("Global Shortcut") {
                     HStack {
-                        Text("Open/Close")
+                        Text("Open/Close App")
                         Spacer()
                         ShortcutRecorderView(
                             shortcut: settings.toggleShortcut,
@@ -285,7 +384,7 @@ struct ShortcutsSettingsView: View {
                     }
                 }
 
-                Section("In-App Shortcuts") {
+                Section("General") {
                     HStack {
                         Text("Submit Entry")
                         Spacer()
@@ -303,10 +402,39 @@ struct ShortcutsSettingsView: View {
                         Spacer()
                         KeyboardShortcutBadge(shortcut: "⌘ ,")
                     }
+
+                    HStack {
+                        Text("Cycle Focus")
+                        Spacer()
+                        KeyboardShortcutBadge(shortcut: "Tab / ⇧Tab")
+                    }
+
+                    KeyboardShortcuts.Recorder("Toggle Timestamps", name: .toggleTimestamps)
+                }
+
+                Section("Search") {
+                    KeyboardShortcuts.Recorder("Find", name: .toggleSearch)
+                    KeyboardShortcuts.Recorder("Find Next", name: .findNext)
+                    KeyboardShortcuts.Recorder("Find Previous", name: .findPrevious)
+                }
+
+                Section("Navigation") {
+                    KeyboardShortcuts.Recorder("Previous Day", name: .previousDay)
+                    KeyboardShortcuts.Recorder("Next Day", name: .nextDay)
+                    KeyboardShortcuts.Recorder("Previous Line End", name: .previousLineEnd)
+                    KeyboardShortcuts.Recorder("Next Line End", name: .nextLineEnd)
+                }
+
+                Section("Formatting") {
+                    KeyboardShortcuts.Recorder("Toggle Strikethrough", name: .toggleStrikethrough)
+                    KeyboardShortcuts.Recorder("Toggle Checkbox", name: .toggleCheckbox)
                 }
 
                 Section {
-                    Button("Reset to Default") {
+                    Button("Reset All to Defaults") {
+                        KeyboardShortcuts.reset(.toggleSearch, .findNext, .findPrevious,
+                                               .previousDay, .nextDay, .previousLineEnd, .nextLineEnd,
+                                               .toggleStrikethrough, .toggleCheckbox, .toggleTimestamps)
                         settings.toggleShortcut = ShortcutKey.defaultToggle
                     }
                     .font(.caption)

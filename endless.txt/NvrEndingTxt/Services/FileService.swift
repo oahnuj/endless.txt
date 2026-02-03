@@ -71,11 +71,52 @@ final class FileService: ObservableObject {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
 
+        let settings = AppSettings.shared
+        var prefix = ""
+
+        // Check if we need to insert a day separator
+        if settings.autoInsertDaySeparator && shouldInsertDaySeparator() {
+            prefix = "\n---\n"
+        }
+
         let timestamp = formatTimestamp(Date())
-        let entry = "\n[\(timestamp)] \(trimmed)\n"
+        let entry: String
+        if settings.showTimestamps {
+            entry = "\(prefix)\n[\(timestamp)] \(trimmed)\n"
+        } else {
+            entry = "\(prefix)\n\(trimmed)\n"
+        }
 
         content.append(entry)
         save()
+    }
+
+    private func shouldInsertDaySeparator() -> Bool {
+        // Find the last timestamp in the content
+        let pattern = "\\[(\\d{4}-\\d{2}-\\d{2})"
+        guard let regex = try? NSRegularExpression(pattern: pattern, options: []) else {
+            return false
+        }
+
+        let range = NSRange(content.startIndex..., in: content)
+        let matches = regex.matches(in: content, options: [], range: range)
+
+        guard let lastMatch = matches.last,
+              let dateRange = Range(lastMatch.range(at: 1), in: content) else {
+            // No previous entries, no separator needed
+            return false
+        }
+
+        let lastDateString = String(content[dateRange])
+
+        // Get today's date in the same format
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        formatter.timeZone = AppSettings.shared.timezone
+        let todayString = formatter.string(from: Date())
+
+        // If last entry is from a different day, insert separator
+        return lastDateString != todayString
     }
 
     // MARK: - Private Methods

@@ -179,6 +179,7 @@ final class AppSettings: ObservableObject {
     @AppStorage("themeName") var themeName: String = "Light"
     @AppStorage("timezoneId") var timezoneId: String = "system"
     @AppStorage("fileLocation") var fileLocation: String = ""
+    @AppStorage("autoInsertDaySeparator") var autoInsertDaySeparator: Bool = true
 
     // Shortcut settings
     @AppStorage("hotkeyCode") var hotkeyCode: Int = 49 // Space
@@ -221,4 +222,25 @@ final class AppSettings: ObservableObject {
 
 extension Notification.Name {
     static let hotkeyChanged = Notification.Name("hotkeyChanged")
+
+    // Search
+    static let showSearch = Notification.Name("showSearch")
+    static let dismissSearch = Notification.Name("dismissSearch")
+    static let findNext = Notification.Name("findNext")
+    static let findPrevious = Notification.Name("findPrevious")
+
+    // Day navigation
+    static let scrollToPreviousDay = Notification.Name("scrollToPreviousDay")
+    static let scrollToNextDay = Notification.Name("scrollToNextDay")
+
+    // Formatting
+    static let toggleStrikethrough = Notification.Name("toggleStrikethrough")
+    static let toggleCheckbox = Notification.Name("toggleCheckbox")
+
+    // Focus
+    static let focusEditor = Notification.Name("focusEditor")
+
+    // Line navigation
+    static let moveToPreviousLineEnd = Notification.Name("moveToPreviousLineEnd")
+    static let moveToNextLineEnd = Notification.Name("moveToNextLineEnd")
 }

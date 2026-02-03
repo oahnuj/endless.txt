@@ -5,6 +5,7 @@ import ServiceManagement
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItem: NSStatusItem?
     private var overlayPanel: NSPanel?
+    private var settingsWindow: NSWindow?
     private var hotkeyManager: HotkeyManager?
     private let fileService = FileService.shared
 
@@ -15,9 +16,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         setupStatusItem()
         setupOverlayPanel()
         setupHotkey()
+        setupKeyboardShortcuts()
 
         // Hide dock icon (backup - Info.plist should handle this)
         NSApp.setActivationPolicy(.accessory)
+    }
+
+    private func setupKeyboardShortcuts() {
+        KeyboardShortcutsManager.shared.setupShortcuts()
     }
 
     // MARK: - Status Item (Menu Bar)
@@ -204,7 +210,30 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc private func openSettings() {
-        NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
+        // If settings window exists and is visible, just bring it to front
+        if let window = settingsWindow, window.isVisible {
+            window.makeKeyAndOrderFront(nil)
+            NSApp.activate(ignoringOtherApps: true)
+            return
+        }
+
+        // Create custom settings window
+        let settingsView = SettingsView()
+        let hostingView = NSHostingView(rootView: settingsView)
+
+        let window = SettingsWindow(
+            contentRect: NSRect(x: 0, y: 0, width: 440, height: 420),
+            styleMask: [.titled, .closable],
+            backing: .buffered,
+            defer: false
+        )
+        window.title = "Settings"
+        window.contentView = hostingView
+        window.center()
+        window.isReleasedWhenClosed = false
+
+        settingsWindow = window
+        window.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
     }
 
@@ -230,10 +259,21 @@ extension AppDelegate: NSWindowDelegate {
     }
 
     func windowDidResignKey(_ notification: Notification) {
-        // When clicking outside, hide the overlay
-        // This ensures the toggle works correctly on first press
-        guard let panel = overlayPanel, panel.isVisible else { return }
-        hideOverlay()
+        // Only handle if it's the overlay panel that resigned
+        guard let window = notification.object as? NSWindow,
+              window === overlayPanel,
+              let panel = overlayPanel,
+              panel.isVisible else { return }
+
+        // Don't hide if settings window is becoming key
+        if settingsWindow?.isKeyWindow == true || settingsWindow?.isVisible == true {
+            return
+        }
+
+        // Use async to avoid blocking
+        DispatchQueue.main.async { [weak self] in
+            self?.hideOverlay()
+        }
     }
 }
 
@@ -241,4 +281,40 @@ extension AppDelegate: NSWindowDelegate {
 
 extension Notification.Name {
     static let focusQuickEntry = Notification.Name("focusQuickEntry")
+}
+
+// MARK: - Settings Window (Esc to close)
+
+class SettingsWindow: NSWindow {
+    private var escMonitor: Any?
+
+    override func makeKeyAndOrderFront(_ sender: Any?) {
+        super.makeKeyAndOrderFront(sender)
+        setupEscMonitor()
+    }
+
+    override func close() {
+        removeEscMonitor()
+        super.close()
+    }
+
+    private func setupEscMonitor() {
+        escMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
+            guard let self = self, self.isKeyWindow else { return event }
+            if event.keyCode == 53 { // Esc
+                self.close()
+                return nil
+            }
+            return event
+        }
+    }
+
+    private func removeEscMonitor() {
+        if let monitor = escMonitor {
+            NSEvent.removeMonitor(monitor)
+            escMonitor = nil
+        }
+    }
+
+    override var canBecomeKey: Bool { true }
 }
