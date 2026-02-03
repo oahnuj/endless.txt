@@ -1,0 +1,33 @@
+name: NvrEndingTxt
+options:
+  bundleIdPrefix: com.nvr
+  deploymentTarget:
+    macOS: "13.0"
+  xcodeVersion: "15.0"
+
+settings:
+  base:
+    MARKETING_VERSION: "1.0.0"
+    CURRENT_PROJECT_VERSION: "1"
+    DEVELOPMENT_TEAM: ""
+
+targets:
+  NvrEndingTxt:
+    type: application
+    platform: macOS
+    sources:
+      - NvrEndingTxt
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.nvr.NvrEndingTxt
+        INFOPLIST_FILE: NvrEndingTxt/Info.plist
+        CODE_SIGN_ENTITLEMENTS: NvrEndingTxt/NvrEndingTxt.entitlements
+        LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/../Frameworks"
+        ENABLE_HARDENED_RUNTIME: YES
+        CODE_SIGN_STYLE: Automatic
+    info:
+      path: NvrEndingTxt/Info.plist
+      properties:
+        LSUIElement: true
+        CFBundleDisplayName: nvr-ending
+        NSHumanReadableCopyright: ""

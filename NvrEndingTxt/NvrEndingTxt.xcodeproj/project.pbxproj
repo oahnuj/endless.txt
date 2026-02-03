@@ -1,0 +1,352 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0B33C7629E9ED965F75E3D0F /* LaunchAtLoginManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 673393AF70E5AECC35F19C75 /* LaunchAtLoginManager.swift */; };
+		1B390E1E3C98BFF01E9B2709 /* HotkeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8611FEE839F1FDD2E030E25D /* HotkeyManager.swift */; };
+		65C524D0F0D904D3FB142A9F /* FileService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B89679B3749ED7F33183D02 /* FileService.swift */; };
+		88117BF056AA37B702BE8C4E /* NvrEndingTxtApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBE08AB8979514A0EB2F82C5 /* NvrEndingTxtApp.swift */; };
+		900258985A7C901A0DFD5C47 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0E43D1CAE1959BAF6DD3B1 /* ContentView.swift */; };
+		A2161914FA13382AB1920011 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE5DBA13A1C14B8456D455C6 /* AppSettings.swift */; };
+		AAC8033CFD59FE848F3C67F7 /* QuickEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 397ACBE35332E859ECF8FAAE /* QuickEntryView.swift */; };
+		AC3A575B13D791BD466C3047 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B89BEA19AA88374677C3982 /* SettingsView.swift */; };
+		AFB7908052EE12E7F9B90328 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A7213A3D4B3E659F930E692 /* AppDelegate.swift */; };
+		DC180C58ECD295EF30EF952D /* FloatingPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B843CDF3D0F50196431A7BE /* FloatingPanel.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		397ACBE35332E859ECF8FAAE /* QuickEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickEntryView.swift; sourceTree = "<group>"; };
+		4B89BEA19AA88374677C3982 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		5A7213A3D4B3E659F930E692 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		61EC2A47E1418B0CA69F41AE /* NvrEndingTxt.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = NvrEndingTxt.entitlements; sourceTree = "<group>"; };
+		673393AF70E5AECC35F19C75 /* LaunchAtLoginManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchAtLoginManager.swift; sourceTree = "<group>"; };
+		6B843CDF3D0F50196431A7BE /* FloatingPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingPanel.swift; sourceTree = "<group>"; };
+		6FD1CA44F8889740A6C934F1 /* NvrEndingTxt.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NvrEndingTxt.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8611FEE839F1FDD2E030E25D /* HotkeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyManager.swift; sourceTree = "<group>"; };
+		9B89679B3749ED7F33183D02 /* FileService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileService.swift; sourceTree = "<group>"; };
+		BB0E43D1CAE1959BAF6DD3B1 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		BEB0FCCD03B960368205F424 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		CE5DBA13A1C14B8456D455C6 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
+		FBE08AB8979514A0EB2F82C5 /* NvrEndingTxtApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NvrEndingTxtApp.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		32F186C9F6D409894BB33B25 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				9B89679B3749ED7F33183D02 /* FileService.swift */,
+				8611FEE839F1FDD2E030E25D /* HotkeyManager.swift */,
+				673393AF70E5AECC35F19C75 /* LaunchAtLoginManager.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		365B99006A98B12A3C956A92 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				CE5DBA13A1C14B8456D455C6 /* AppSettings.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		56E0D948E6323AF690719E93 /* NvrEndingTxt */ = {
+			isa = PBXGroup;
+			children = (
+				5A7213A3D4B3E659F930E692 /* AppDelegate.swift */,
+				BEB0FCCD03B960368205F424 /* Info.plist */,
+				61EC2A47E1418B0CA69F41AE /* NvrEndingTxt.entitlements */,
+				FBE08AB8979514A0EB2F82C5 /* NvrEndingTxtApp.swift */,
+				365B99006A98B12A3C956A92 /* Models */,
+				32F186C9F6D409894BB33B25 /* Services */,
+				DC3DE3733E71076E01E5CC51 /* Views */,
+			);
+			path = NvrEndingTxt;
+			sourceTree = "<group>";
+		};
+		5EE80ED38E2D1C925209171D /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				6FD1CA44F8889740A6C934F1 /* NvrEndingTxt.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A1754F4B8EEE0D2229B347AE = {
+			isa = PBXGroup;
+			children = (
+				56E0D948E6323AF690719E93 /* NvrEndingTxt */,
+				5EE80ED38E2D1C925209171D /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		DC3DE3733E71076E01E5CC51 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				BB0E43D1CAE1959BAF6DD3B1 /* ContentView.swift */,
+				6B843CDF3D0F50196431A7BE /* FloatingPanel.swift */,
+				397ACBE35332E859ECF8FAAE /* QuickEntryView.swift */,
+				4B89BEA19AA88374677C3982 /* SettingsView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		0A1E1D4D1C6E135AAF0277B5 /* NvrEndingTxt */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D40D12F865D53526F5596DA4 /* Build configuration list for PBXNativeTarget "NvrEndingTxt" */;
+			buildPhases = (
+				A3644DC6F975BA166E80FE8E /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = NvrEndingTxt;
+			packageProductDependencies = (
+			);
+			productName = NvrEndingTxt;
+			productReference = 6FD1CA44F8889740A6C934F1 /* NvrEndingTxt.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		996F33E12A721707367CED60 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					0A1E1D4D1C6E135AAF0277B5 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 117A512DEC89813808D85B26 /* Build configuration list for PBXProject "NvrEndingTxt" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = A1754F4B8EEE0D2229B347AE;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				0A1E1D4D1C6E135AAF0277B5 /* NvrEndingTxt */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A3644DC6F975BA166E80FE8E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AFB7908052EE12E7F9B90328 /* AppDelegate.swift in Sources */,
+				A2161914FA13382AB1920011 /* AppSettings.swift in Sources */,
+				900258985A7C901A0DFD5C47 /* ContentView.swift in Sources */,
+				65C524D0F0D904D3FB142A9F /* FileService.swift in Sources */,
+				DC180C58ECD295EF30EF952D /* FloatingPanel.swift in Sources */,
+				1B390E1E3C98BFF01E9B2709 /* HotkeyManager.swift in Sources */,
+				0B33C7629E9ED965F75E3D0F /* LaunchAtLoginManager.swift in Sources */,
+				88117BF056AA37B702BE8C4E /* NvrEndingTxtApp.swift in Sources */,
+				AAC8033CFD59FE848F3C67F7 /* QuickEntryView.swift in Sources */,
+				AC3A575B13D791BD466C3047 /* SettingsView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		08599F89E36E9E29D838B953 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MARKETING_VERSION = 1.0.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		54DA6D6746A06CC2151CE4A3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = NvrEndingTxt/NvrEndingTxt.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				INFOPLIST_FILE = NvrEndingTxt/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.nvr.NvrEndingTxt;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		80639906F43E8834D9FEFDF3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = NvrEndingTxt/NvrEndingTxt.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				INFOPLIST_FILE = NvrEndingTxt/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.nvr.NvrEndingTxt;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		FB7FDD697A738EFB40F2C267 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MARKETING_VERSION = 1.0.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		117A512DEC89813808D85B26 /* Build configuration list for PBXProject "NvrEndingTxt" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				08599F89E36E9E29D838B953 /* Debug */,
+				FB7FDD697A738EFB40F2C267 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		D40D12F865D53526F5596DA4 /* Build configuration list for PBXNativeTarget "NvrEndingTxt" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				54DA6D6746A06CC2151CE4A3 /* Debug */,
+				80639906F43E8834D9FEFDF3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 996F33E12A721707367CED60 /* Project object */;
+}
