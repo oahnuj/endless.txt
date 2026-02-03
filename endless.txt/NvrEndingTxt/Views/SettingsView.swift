@@ -146,7 +146,7 @@ struct GeneralSettingsView: View {
                 Section("Storage") {
                     HStack {
                         Text(settings.fileLocation.isEmpty
-                             ? "~/Documents/nvr-ending.txt"
+                             ? "~/Documents/endless.txt"
                              : settings.fileLocation)
                             .font(.system(.caption, design: .monospaced))
                             .foregroundColor(.secondary)
@@ -229,7 +229,7 @@ struct GeneralSettingsView: View {
             }
             Button("Later", role: .cancel) {}
         } message: {
-            Text("Enable NvrEndingTxt in System Settings > General > Login Items")
+            Text("Enable endless.txt in System Settings > General > Login Items")
         }
     }
 
@@ -569,7 +569,7 @@ struct AboutView: View {
                 .font(.system(size: 36))
                 .foregroundColor(.accentColor)
 
-            Text("nvr-ending.txt")
+            Text("endless.txt")
                 .font(.title3.bold())
 
             Text("Infinite thought capture")

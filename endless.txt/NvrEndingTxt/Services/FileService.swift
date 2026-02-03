@@ -26,7 +26,7 @@ final class FileService: ObservableObject {
             } else {
                 // Create file with welcome message
                 let welcomeMessage = """
-                Welcome to nvr-ending.txt
+                Welcome to endless.txt
                 Your infinite thought capture space.
 
                 Tips:

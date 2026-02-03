@@ -38,7 +38,7 @@ targets:
       path: NvrEndingTxt/Info.plist
       properties:
         LSUIElement: true
-        CFBundleDisplayName: nvr-ending
+        CFBundleDisplayName: endless.txt
         NSHumanReadableCopyright: ""
     scheme:
       gatherCoverageData: false

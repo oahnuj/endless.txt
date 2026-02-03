@@ -214,7 +214,7 @@ final class AppSettings: ObservableObject {
             return URL(fileURLWithPath: fileLocation)
         }
         let documentsPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        return documentsPath.appendingPathComponent("nvr-ending.txt")
+        return documentsPath.appendingPathComponent("endless.txt")
     }
 
     private init() {}
