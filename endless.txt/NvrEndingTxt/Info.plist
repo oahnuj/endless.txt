@@ -24,5 +24,9 @@
 	<true/>
 	<key>NSHumanReadableCopyright</key>
 	<string></string>
+	<key>SUFeedURL</key>
+	<string>https://raw.githubusercontent.com/oahnuj/endless.txt/main/appcast.xml</string>
+	<key>SUPublicEDKey</key>
+	<string>2a/2nd2lvGvv5z7jG/i+LystWjXckMSp1aY+axB8L0g=</string>
 </dict>
 </plist>

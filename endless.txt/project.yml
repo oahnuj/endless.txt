@@ -11,6 +11,9 @@ packages:
   KeyboardShortcuts:
     url: https://github.com/sindresorhus/KeyboardShortcuts
     from: "2.0.0"
+  Sparkle:
+    url: https://github.com/sparkle-project/Sparkle
+    from: "2.0.0"
 
 settings:
   base:
@@ -26,6 +29,7 @@ targets:
       - NvrEndingTxt
     dependencies:
       - package: KeyboardShortcuts
+      - package: Sparkle
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.nvr.NvrEndingTxt
@@ -41,5 +45,7 @@ targets:
         LSUIElement: true
         CFBundleDisplayName: endless.txt
         NSHumanReadableCopyright: ""
+        SUFeedURL: https://raw.githubusercontent.com/oahnuj/endless.txt/main/appcast.xml
+        SUPublicEDKey: 2a/2nd2lvGvv5z7jG/i+LystWjXckMSp1aY+axB8L0g=
     scheme:
       gatherCoverageData: false
