@@ -176,11 +176,14 @@ final class AppSettings: ObservableObject {
     @AppStorage("fontName") var fontName: String = "SF Mono"
     @AppStorage("displayTimestamps") var displayTimestamps: Bool = true
     @AppStorage("addTimestampsToEntries") var addTimestampsToEntries: Bool = true
+    @AppStorage("timestampPosition") var timestampPosition: String = "left" // "left" or "top"
     @AppStorage("timestampFormat") var timestampFormat: String = "yyyy-MM-dd HH:mm"
+    @AppStorage("enableMarkdown") var enableMarkdown: Bool = true
     @AppStorage("themeName") var themeName: String = "Light"
     @AppStorage("timezoneId") var timezoneId: String = "system"
     @AppStorage("fileLocation") var fileLocation: String = ""
     @AppStorage("autoInsertDaySeparator") var autoInsertDaySeparator: Bool = true
+    @AppStorage("compactEntries") var compactEntries: Bool = false
 
     // Shortcut settings
     @AppStorage("hotkeyCode") var hotkeyCode: Int = 49 // Space

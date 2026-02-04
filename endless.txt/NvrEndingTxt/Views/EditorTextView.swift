@@ -34,6 +34,7 @@ struct EditorTextView: NSViewRepresentable {
         scrollView.hasVerticalScroller = true
         scrollView.hasHorizontalScroller = false
         scrollView.autohidesScrollers = true
+        scrollView.scrollerStyle = .overlay // Scrollbar only shows when scrolling
         scrollView.drawsBackground = false
 
         let textView = EditorNSTextView()
@@ -71,8 +72,8 @@ struct EditorTextView: NSViewRepresentable {
 
         // Set initial text
         textView.string = text
-        applyStrikethroughStyling(to: textView)
         applyTimestampStyling(to: textView)
+        applyMarkdownStyling(to: textView)
 
         // Store reference to text view in coordinator
         context.coordinator.textView = textView
@@ -103,9 +104,9 @@ struct EditorTextView: NSViewRepresentable {
         // Apply theme changes
         applyTheme(to: textView)
 
-        // Apply text styling
-        applyStrikethroughStyling(to: textView)
+        // Apply text styling (timestamp first as it resets fonts, then markdown)
         applyTimestampStyling(to: textView)
+        applyMarkdownStyling(to: textView)
 
         // Update search highlights if search is active and query changed
         if searchState.isVisible && !searchState.query.isEmpty {
@@ -145,31 +146,109 @@ struct EditorTextView: NSViewRepresentable {
         ]
     }
 
-    private func applyStrikethroughStyling(to textView: NSTextView) {
+    private func applyMarkdownStyling(to textView: NSTextView) {
+        guard settings.enableMarkdown else { return }
         guard let textStorage = textView.textStorage else { return }
 
         let fullRange = NSRange(location: 0, length: textStorage.length)
+        let theme = settings.theme
 
-        // Remove existing strikethrough
+        // Create bold font using system bold monospace
+        let boldFont = NSFont.monospacedSystemFont(ofSize: settings.fontSize, weight: .bold)
+
+        // Create italic font using oblique transform (monospace fonts rarely have true italic)
+        let baseFont = NSFont(name: settings.fontName, size: settings.fontSize)
+            ?? NSFont.monospacedSystemFont(ofSize: settings.fontSize, weight: .regular)
+        let italicTransform = AffineTransform(m11: 1, m12: 0, m21: 0.2, m22: 1, tX: 0, tY: 0)
+        let italicDescriptor = baseFont.fontDescriptor
+        let italicFont = NSFont(descriptor: italicDescriptor, textTransform: italicTransform)
+            ?? baseFont
+
+        // Remove existing markdown attributes first
         textStorage.removeAttribute(.strikethroughStyle, range: fullRange)
+        textStorage.removeAttribute(.underlineStyle, range: fullRange)
+        textStorage.removeAttribute(.obliqueness, range: fullRange)
 
-        // Find ~~text~~ patterns and apply strikethrough
-        let pattern = "~~(.+?)~~"
-        guard let regex = try? NSRegularExpression(pattern: pattern, options: []) else { return }
+        // **bold** - must check before *italic* since ** contains *
+        if let boldRegex = try? NSRegularExpression(pattern: "\\*\\*(.+?)\\*\\*", options: []) {
+            let matches = boldRegex.matches(in: textView.string, options: [], range: fullRange)
+            for match in matches {
+                // Apply bold to content (excluding markers)
+                if match.numberOfRanges > 1 {
+                    let contentRange = match.range(at: 1)
+                    textStorage.addAttribute(.font, value: boldFont, range: contentRange)
+                }
+                // Make markers dim
+                if match.range.length >= 4 {
+                    let startMarker = NSRange(location: match.range.location, length: 2)
+                    let endMarker = NSRange(location: match.range.location + match.range.length - 2, length: 2)
+                    textStorage.addAttribute(.foregroundColor, value: NSColor(theme.secondaryTextColor).withAlphaComponent(0.3), range: startMarker)
+                    textStorage.addAttribute(.foregroundColor, value: NSColor(theme.secondaryTextColor).withAlphaComponent(0.3), range: endMarker)
+                }
+            }
+        }
 
-        let matches = regex.matches(in: textView.string, options: [], range: fullRange)
+        // *italic* (single asterisk, but not inside **)
+        if let italicRegex = try? NSRegularExpression(pattern: "(?<!\\*)\\*(?!\\*)(.+?)(?<!\\*)\\*(?!\\*)", options: []) {
+            let matches = italicRegex.matches(in: textView.string, options: [], range: fullRange)
+            for match in matches {
+                if match.numberOfRanges > 1 {
+                    let contentRange = match.range(at: 1)
+                    // Use obliqueness attribute for italic effect
+                    textStorage.addAttribute(.obliqueness, value: 0.2, range: contentRange)
+                }
+                // Make markers dim
+                if match.range.length >= 2 {
+                    let startMarker = NSRange(location: match.range.location, length: 1)
+                    let endMarker = NSRange(location: match.range.location + match.range.length - 1, length: 1)
+                    textStorage.addAttribute(.foregroundColor, value: NSColor(theme.secondaryTextColor).withAlphaComponent(0.3), range: startMarker)
+                    textStorage.addAttribute(.foregroundColor, value: NSColor(theme.secondaryTextColor).withAlphaComponent(0.3), range: endMarker)
+                }
+            }
+        }
 
-        for match in matches {
-            // Apply strikethrough to the entire match (including ~~)
-            textStorage.addAttribute(.strikethroughStyle, value: NSUnderlineStyle.single.rawValue, range: match.range)
+        // ~~strikethrough~~
+        if let strikeRegex = try? NSRegularExpression(pattern: "~~(.+?)~~", options: []) {
+            let matches = strikeRegex.matches(in: textView.string, options: [], range: fullRange)
+            for match in matches {
+                textStorage.addAttribute(.strikethroughStyle, value: NSUnderlineStyle.single.rawValue, range: match.range)
+                if match.range.length >= 4 {
+                    let startMarker = NSRange(location: match.range.location, length: 2)
+                    let endMarker = NSRange(location: match.range.location + match.range.length - 2, length: 2)
+                    textStorage.addAttribute(.foregroundColor, value: NSColor(theme.secondaryTextColor).withAlphaComponent(0.3), range: startMarker)
+                    textStorage.addAttribute(.foregroundColor, value: NSColor(theme.secondaryTextColor).withAlphaComponent(0.3), range: endMarker)
+                }
+            }
+        }
 
-            // Make the ~~ markers slightly transparent
-            let theme = settings.theme
-            if match.range.length >= 4 {
-                let startMarkerRange = NSRange(location: match.range.location, length: 2)
-                let endMarkerRange = NSRange(location: match.range.location + match.range.length - 2, length: 2)
-                textStorage.addAttribute(.foregroundColor, value: NSColor(theme.secondaryTextColor).withAlphaComponent(0.5), range: startMarkerRange)
-                textStorage.addAttribute(.foregroundColor, value: NSColor(theme.secondaryTextColor).withAlphaComponent(0.5), range: endMarkerRange)
+        // __underline__
+        if let underlineRegex = try? NSRegularExpression(pattern: "__(.+?)__", options: []) {
+            let matches = underlineRegex.matches(in: textView.string, options: [], range: fullRange)
+            for match in matches {
+                if match.numberOfRanges > 1 {
+                    let contentRange = match.range(at: 1)
+                    textStorage.addAttribute(.underlineStyle, value: NSUnderlineStyle.single.rawValue, range: contentRange)
+                }
+                if match.range.length >= 4 {
+                    let startMarker = NSRange(location: match.range.location, length: 2)
+                    let endMarker = NSRange(location: match.range.location + match.range.length - 2, length: 2)
+                    textStorage.addAttribute(.foregroundColor, value: NSColor(theme.secondaryTextColor).withAlphaComponent(0.3), range: startMarker)
+                    textStorage.addAttribute(.foregroundColor, value: NSColor(theme.secondaryTextColor).withAlphaComponent(0.3), range: endMarker)
+                }
+            }
+        }
+
+        // URLs - detect http:// and https:// links
+        if let urlRegex = try? NSRegularExpression(pattern: "https?://[^\\s]+", options: []) {
+            let matches = urlRegex.matches(in: textView.string, options: [], range: fullRange)
+            for match in matches {
+                textStorage.addAttribute(.foregroundColor, value: NSColor(theme.accentColor), range: match.range)
+                textStorage.addAttribute(.underlineStyle, value: NSUnderlineStyle.single.rawValue, range: match.range)
+                // Make it a clickable link
+                let urlString = (textView.string as NSString).substring(with: match.range)
+                if let url = URL(string: urlString) {
+                    textStorage.addAttribute(.link, value: url, range: match.range)
+                }
             }
         }
     }
@@ -177,22 +256,57 @@ struct EditorTextView: NSViewRepresentable {
     private func applyTimestampStyling(to textView: NSTextView) {
         guard let textStorage = textView.textStorage else { return }
 
+        let content = textView.string as NSString
         let fullRange = NSRange(location: 0, length: textStorage.length)
         let theme = settings.theme
+        let normalFont = NSFont(name: settings.fontName, size: settings.fontSize)
+            ?? NSFont.monospacedSystemFont(ofSize: settings.fontSize, weight: .regular)
+        let smallFont = NSFont(name: settings.fontName, size: settings.fontSize - 2)
+            ?? NSFont.monospacedSystemFont(ofSize: settings.fontSize - 2, weight: .regular)
+        let tinyFont = NSFont.systemFont(ofSize: 0.1)
 
-        // Find timestamp patterns like [2024-02-03 14:30] or [2024-02-03 14:30:00]
-        let pattern = "\\[\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}(:\\d{2})?\\]"
-        guard let regex = try? NSRegularExpression(pattern: pattern, options: []) else { return }
+        // Reset font for full range first
+        textStorage.addAttribute(.font, value: normalFont, range: fullRange)
 
-        let matches = regex.matches(in: textView.string, options: [], range: fullRange)
+        // Pattern for timestamp-only lines: line that contains only [timestamp] with optional whitespace
+        let timestampOnlyLinePattern = "^[ \\t]*\\[\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}(:\\d{2})?\\][ \\t]*\\n?"
+        // Pattern for inline timestamps
+        let inlineTimestampPattern = "\\[\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}(:\\d{2})?\\]"
 
-        for match in matches {
-            if settings.displayTimestamps {
-                // Show timestamps with subtle color
-                textStorage.addAttribute(.foregroundColor, value: NSColor(theme.timestampColor), range: match.range)
-            } else {
-                // Hide timestamps by making them invisible (but still in the document)
-                textStorage.addAttribute(.foregroundColor, value: NSColor.clear, range: match.range)
+        // First, handle timestamp-only lines
+        if let lineRegex = try? NSRegularExpression(pattern: timestampOnlyLinePattern, options: .anchorsMatchLines) {
+            let lineMatches = lineRegex.matches(in: textView.string, options: [], range: fullRange)
+
+            for match in lineMatches {
+                if settings.displayTimestamps {
+                    // Show with smaller font and subtle color
+                    textStorage.addAttribute(.font, value: smallFont, range: match.range)
+                    textStorage.addAttribute(.foregroundColor, value: NSColor(theme.timestampColor), range: match.range)
+                } else {
+                    // Hide entire line by making it tiny and invisible
+                    textStorage.addAttribute(.font, value: tinyFont, range: match.range)
+                    textStorage.addAttribute(.foregroundColor, value: NSColor.clear, range: match.range)
+                }
+            }
+        }
+
+        // Then handle any inline timestamps (timestamp followed by text on same line)
+        if let inlineRegex = try? NSRegularExpression(pattern: inlineTimestampPattern, options: []) {
+            let inlineMatches = inlineRegex.matches(in: textView.string, options: [], range: fullRange)
+
+            for match in inlineMatches {
+                // Check if this timestamp is NOT at the start of a line (inline)
+                let lineRange = content.lineRange(for: match.range)
+                let lineText = content.substring(with: lineRange).trimmingCharacters(in: .whitespacesAndNewlines)
+
+                // If line has more content than just the timestamp, it's inline
+                if lineText.count > match.range.length + 2 { // +2 for potential spaces
+                    if settings.displayTimestamps {
+                        textStorage.addAttribute(.foregroundColor, value: NSColor(theme.timestampColor), range: match.range)
+                    } else {
+                        textStorage.addAttribute(.foregroundColor, value: NSColor.clear, range: match.range)
+                    }
+                }
             }
         }
     }
@@ -234,9 +348,12 @@ struct EditorTextView: NSViewRepresentable {
             isUpdatingText = true
             parent.text = textView.string
 
-            // Re-apply strikethrough styling after text change
+            // Keep cursor visible (auto-scroll when typing at end)
+            textView.scrollRangeToVisible(textView.selectedRange())
+
+            // Re-apply markdown styling after text change
             DispatchQueue.main.async { [weak self] in
-                self?.parent.applyStrikethroughStyling(to: textView)
+                self?.parent.applyMarkdownStyling(to: textView)
                 self?.isUpdatingText = false
             }
         }
@@ -313,27 +430,69 @@ struct EditorTextView: NSViewRepresentable {
             updateSearchHighlights()
         }
 
-        // MARK: - Day Navigation
+        // MARK: - Entry Navigation
+
+        /// Find the end position of a note (just before the next timestamp or end of document)
+        private func findNoteEndPosition(for timestampMatch: NSTextCheckingResult, allMatches: [NSTextCheckingResult], in content: NSString) -> Int {
+            // Find the index of the current match
+            guard let currentIndex = allMatches.firstIndex(where: { $0.range.location == timestampMatch.range.location }) else {
+                return content.length
+            }
+
+            // If there's a next timestamp, the note ends just before it (minus newlines)
+            if currentIndex + 1 < allMatches.count {
+                let nextMatch = allMatches[currentIndex + 1]
+                var endPos = nextMatch.range.location
+
+                // Go back past any newlines/whitespace before the next timestamp
+                while endPos > timestampMatch.range.location && endPos > 0 {
+                    let prevChar = content.substring(with: NSRange(location: endPos - 1, length: 1))
+                    if prevChar == "\n" || prevChar == " " || prevChar == "\t" || prevChar == "-" {
+                        endPos -= 1
+                    } else {
+                        break
+                    }
+                }
+
+                return endPos
+            }
+
+            // This is the last note, find end of actual content
+            var endPos = content.length
+
+            // Go back past any trailing newlines/whitespace
+            while endPos > timestampMatch.range.location && endPos > 0 {
+                let prevChar = content.substring(with: NSRange(location: endPos - 1, length: 1))
+                if prevChar == "\n" || prevChar == " " || prevChar == "\t" {
+                    endPos -= 1
+                } else {
+                    break
+                }
+            }
+
+            return endPos
+        }
 
         @objc func scrollToPreviousDay() {
             guard let textView = textView else { return }
 
-            let content = textView.string
+            let content = textView.string as NSString
             let pattern = "\\[\\d{4}-\\d{2}-\\d{2}"
             guard let regex = try? NSRegularExpression(pattern: pattern, options: []) else { return }
 
-            let fullRange = NSRange(location: 0, length: (content as NSString).length)
-            let matches = regex.matches(in: content, options: [], range: fullRange)
+            let fullRange = NSRange(location: 0, length: content.length)
+            let matches = regex.matches(in: textView.string, options: [], range: fullRange)
 
             guard !matches.isEmpty else { return }
 
             // Find current cursor position
             let cursorPosition = textView.selectedRange().location
 
-            // Find the previous day entry (before cursor)
+            // Find the previous entry (before cursor)
             var targetMatch: NSTextCheckingResult?
             for match in matches.reversed() {
-                if match.range.location < cursorPosition {
+                let noteEnd = findNoteEndPosition(for: match, allMatches: matches, in: content)
+                if noteEnd < cursorPosition {
                     targetMatch = match
                     break
                 }
@@ -345,29 +504,33 @@ struct EditorTextView: NSViewRepresentable {
             }
 
             if let match = targetMatch {
-                scrollToAndHighlight(range: match.range)
+                let noteEnd = findNoteEndPosition(for: match, allMatches: matches, in: content)
+                let targetRange = NSRange(location: noteEnd, length: 0)
+                textView.setSelectedRange(targetRange)
+                textView.scrollRangeToVisible(targetRange)
             }
         }
 
         @objc func scrollToNextDay() {
             guard let textView = textView else { return }
 
-            let content = textView.string
+            let content = textView.string as NSString
             let pattern = "\\[\\d{4}-\\d{2}-\\d{2}"
             guard let regex = try? NSRegularExpression(pattern: pattern, options: []) else { return }
 
-            let fullRange = NSRange(location: 0, length: (content as NSString).length)
-            let matches = regex.matches(in: content, options: [], range: fullRange)
+            let fullRange = NSRange(location: 0, length: content.length)
+            let matches = regex.matches(in: textView.string, options: [], range: fullRange)
 
             guard !matches.isEmpty else { return }
 
             // Find current cursor position
             let cursorPosition = textView.selectedRange().location
 
-            // Find the next day entry (after cursor)
+            // Find the next entry (after cursor)
             var targetMatch: NSTextCheckingResult?
             for match in matches {
-                if match.range.location > cursorPosition {
+                let noteEnd = findNoteEndPosition(for: match, allMatches: matches, in: content)
+                if noteEnd > cursorPosition {
                     targetMatch = match
                     break
                 }
@@ -379,7 +542,10 @@ struct EditorTextView: NSViewRepresentable {
             }
 
             if let match = targetMatch {
-                scrollToAndHighlight(range: match.range)
+                let noteEnd = findNoteEndPosition(for: match, allMatches: matches, in: content)
+                let targetRange = NSRange(location: noteEnd, length: 0)
+                textView.setSelectedRange(targetRange)
+                textView.scrollRangeToVisible(targetRange)
             }
         }
 
@@ -408,7 +574,33 @@ struct EditorTextView: NSViewRepresentable {
         }
 
         @objc func scrollToBottom() {
-            textView?.scrollToEndOfDocument(nil)
+            guard let textView = textView else { return }
+
+            // Force layout first
+            textView.layoutManager?.ensureLayout(for: textView.textContainer!)
+
+            // Delay scroll to let layout complete in the next run loop
+            DispatchQueue.main.async { [weak textView] in
+                guard let textView = textView,
+                      let scrollView = textView.enclosingScrollView else { return }
+
+                // Move cursor to end of document
+                let endRange = NSRange(location: (textView.string as NSString).length, length: 0)
+                textView.setSelectedRange(endRange)
+
+                // Scroll to make the end visible
+                textView.scrollRangeToVisible(endRange)
+
+                // Additionally, scroll a bit more to ensure full visibility
+                DispatchQueue.main.async {
+                    guard let scrollView = textView.enclosingScrollView else { return }
+                    let documentHeight = textView.frame.height
+                    let clipViewHeight = scrollView.contentView.bounds.height
+                    let scrollY = max(0, documentHeight - clipViewHeight)
+                    scrollView.contentView.scroll(to: NSPoint(x: 0, y: scrollY))
+                    scrollView.reflectScrolledClipView(scrollView.contentView)
+                }
+            }
         }
 
         @objc func focusEditor() {
@@ -487,32 +679,41 @@ struct EditorTextView: NSViewRepresentable {
             guard let textView = textView else { return }
 
             let selectedRange = textView.selectedRange()
-            guard selectedRange.length > 0 else { return }
-
             let content = textView.string as NSString
-            let selectedText = content.substring(with: selectedRange)
 
-            var newText: String
-            var newSelectedRange: NSRange
+            // Get line range
+            let lineRange = content.lineRange(for: selectedRange)
+            let lineText = content.substring(with: lineRange)
 
-            // Check if already has strikethrough markers
-            if selectedText.hasPrefix("~~") && selectedText.hasSuffix("~~") && selectedText.count >= 4 {
-                // Remove markers
-                let startIndex = selectedText.index(selectedText.startIndex, offsetBy: 2)
-                let endIndex = selectedText.index(selectedText.endIndex, offsetBy: -2)
-                newText = String(selectedText[startIndex..<endIndex])
-                newSelectedRange = NSRange(location: selectedRange.location, length: newText.count)
+            var newLineText: String
+            var cursorOffset = 0
+
+            // Check if line content (excluding leading whitespace) is wrapped in ~~
+            let leadingSpaces = lineText.prefix(while: { $0.isWhitespace && $0 != "\n" })
+            let hasNewline = lineText.hasSuffix("\n")
+            let trimmedContent = lineText.trimmingCharacters(in: .whitespacesAndNewlines)
+
+            if trimmedContent.hasPrefix("~~") && trimmedContent.hasSuffix("~~") && trimmedContent.count >= 4 {
+                // Remove strikethrough markers
+                let startIndex = trimmedContent.index(trimmedContent.startIndex, offsetBy: 2)
+                let endIndex = trimmedContent.index(trimmedContent.endIndex, offsetBy: -2)
+                let unwrapped = String(trimmedContent[startIndex..<endIndex])
+                newLineText = String(leadingSpaces) + unwrapped + (hasNewline ? "\n" : "")
+                cursorOffset = -2 // Account for removed ~~
             } else {
-                // Add markers
-                newText = "~~\(selectedText)~~"
-                newSelectedRange = NSRange(location: selectedRange.location, length: newText.count)
+                // Add strikethrough markers
+                newLineText = String(leadingSpaces) + "~~" + trimmedContent + "~~" + (hasNewline ? "\n" : "")
+                cursorOffset = 2 // Account for added ~~
             }
 
-            // Replace text
-            if textView.shouldChangeText(in: selectedRange, replacementString: newText) {
-                textView.replaceCharacters(in: selectedRange, with: newText)
+            // Replace line
+            if textView.shouldChangeText(in: lineRange, replacementString: newLineText) {
+                textView.replaceCharacters(in: lineRange, with: newLineText)
                 textView.didChangeText()
-                textView.setSelectedRange(newSelectedRange)
+
+                // Adjust cursor position
+                let newCursorPos = max(0, min(selectedRange.location + cursorOffset, (textView.string as NSString).length))
+                textView.setSelectedRange(NSRange(location: newCursorPos, length: 0))
             }
         }
 

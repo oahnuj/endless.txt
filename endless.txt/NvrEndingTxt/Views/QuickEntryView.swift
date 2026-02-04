@@ -161,6 +161,7 @@ struct QuickEntryTextEditor: NSViewRepresentable {
 
 class QuickEntryNSTextView: NSTextView {
     private var checkboxObserver: NSObjectProtocol?
+    private var strikethroughObserver: NSObjectProtocol?
 
     convenience init() {
         self.init(frame: .zero)
@@ -191,10 +192,23 @@ class QuickEntryNSTextView: NSTextView {
             guard let self = self, self.window?.firstResponder === self else { return }
             self.toggleCheckbox()
         }
+
+        // Listen for strikethrough toggle when this view has focus
+        strikethroughObserver = NotificationCenter.default.addObserver(
+            forName: .toggleStrikethrough,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            guard let self = self, self.window?.firstResponder === self else { return }
+            self.toggleStrikethrough()
+        }
     }
 
     deinit {
         if let observer = checkboxObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
+        if let observer = strikethroughObserver {
             NotificationCenter.default.removeObserver(observer)
         }
     }
@@ -228,6 +242,46 @@ class QuickEntryNSTextView: NSTextView {
             let baseTrimmed = lineText.trimmingCharacters(in: .whitespacesAndNewlines)
             newLineText = String(leadingSpaces) + "[ ] " + baseTrimmed + (hasNewline ? "\n" : "")
             cursorOffset = 4
+        }
+
+        // Replace line
+        if shouldChangeText(in: lineRange, replacementString: newLineText) {
+            replaceCharacters(in: lineRange, with: newLineText)
+            didChangeText()
+
+            // Adjust cursor position
+            let newCursorPos = max(0, min(selectedRange.location + cursorOffset, (string as NSString).length))
+            setSelectedRange(NSRange(location: newCursorPos, length: 0))
+        }
+    }
+
+    private func toggleStrikethrough() {
+        let selectedRange = selectedRange()
+        let content = string as NSString
+
+        // Get line range
+        let lineRange = content.lineRange(for: selectedRange)
+        let lineText = content.substring(with: lineRange)
+
+        var newLineText: String
+        var cursorOffset = 0
+
+        // Check if line content (excluding leading whitespace) is wrapped in ~~
+        let leadingSpaces = lineText.prefix(while: { $0.isWhitespace && $0 != "\n" })
+        let hasNewline = lineText.hasSuffix("\n")
+        let trimmedContent = lineText.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        if trimmedContent.hasPrefix("~~") && trimmedContent.hasSuffix("~~") && trimmedContent.count >= 4 {
+            // Remove strikethrough markers
+            let startIndex = trimmedContent.index(trimmedContent.startIndex, offsetBy: 2)
+            let endIndex = trimmedContent.index(trimmedContent.endIndex, offsetBy: -2)
+            let unwrapped = String(trimmedContent[startIndex..<endIndex])
+            newLineText = String(leadingSpaces) + unwrapped + (hasNewline ? "\n" : "")
+            cursorOffset = -2
+        } else {
+            // Add strikethrough markers
+            newLineText = String(leadingSpaces) + "~~" + trimmedContent + "~~" + (hasNewline ? "\n" : "")
+            cursorOffset = 2
         }
 
         // Replace line

@@ -203,14 +203,30 @@ struct GeneralSettingsView: View {
                         .foregroundColor(.secondary)
 
                     Toggle("Add timestamps to new entries", isOn: $settings.addTimestampsToEntries)
-                    Text("Automatically prepend timestamp when submitting")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+
+                    if settings.addTimestampsToEntries {
+                        Picker("Position", selection: $settings.timestampPosition) {
+                            Text("Left (inline)").tag("left")
+                            Text("Top (separate line)").tag("top")
+                        }
+                        .pickerStyle(.segmented)
+
+                        Text(settings.timestampPosition == "left"
+                             ? "Format: [timestamp] your text"
+                             : "Format: [timestamp]\\nyour text")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
                 }
 
                 Section("Entries") {
                     Toggle("Auto-insert day separator", isOn: $settings.autoInsertDaySeparator)
                     Text("Adds \"---\" between entries from different days")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+
+                    Toggle("Compact view", isOn: $settings.compactEntries)
+                    Text("Remove extra line breaks between entries")
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
@@ -365,6 +381,13 @@ struct AppearanceSettingsView: View {
                             .monospacedDigit()
                             .frame(width: 24)
                     }
+                }
+
+                Section("Formatting") {
+                    Toggle("Enable markdown", isOn: $settings.enableMarkdown)
+                    Text("**bold**, *italic*, ~~strike~~, __underline__, URLs")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
                 }
 
                 Section("Preview") {
@@ -562,9 +585,20 @@ struct ThemePreviewView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text("[2024-02-03 14:30] Sample #idea")
-                .font(.custom(settings.fontName, size: settings.fontSize - 1))
-                .foregroundColor(settings.theme.textColor)
+            if settings.timestampPosition == "top" {
+                // Top format: timestamp on its own line
+                Text("[2024-02-03 14:30]")
+                    .font(.custom(settings.fontName, size: settings.fontSize - 3))
+                    .foregroundColor(settings.theme.timestampColor)
+                Text("Sample #idea")
+                    .font(.custom(settings.fontName, size: settings.fontSize - 1))
+                    .foregroundColor(settings.theme.textColor)
+            } else {
+                // Left format: inline timestamp
+                Text("[2024-02-03 14:30] Sample #idea")
+                    .font(.custom(settings.fontName, size: settings.fontSize - 1))
+                    .foregroundColor(settings.theme.textColor)
+            }
             Text("Quick thought...")
                 .font(.custom(settings.fontName, size: settings.fontSize - 2))
                 .foregroundColor(settings.theme.secondaryTextColor)

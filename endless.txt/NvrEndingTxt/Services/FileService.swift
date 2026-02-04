@@ -80,11 +80,18 @@ final class FileService: ObservableObject {
         }
 
         let timestamp = formatTimestamp(Date())
+        let lineBreak = settings.compactEntries ? "" : "\n"
         let entry: String
         if settings.addTimestampsToEntries {
-            entry = "\(prefix)\n[\(timestamp)] \(trimmed)\n"
+            if settings.timestampPosition == "top" {
+                // Timestamp on its own line, then content
+                entry = "\(prefix)\(lineBreak)[\(timestamp)]\n\(trimmed)\n"
+            } else {
+                // Timestamp inline (left of content)
+                entry = "\(prefix)\(lineBreak)[\(timestamp)] \(trimmed)\n"
+            }
         } else {
-            entry = "\(prefix)\n\(trimmed)\n"
+            entry = "\(prefix)\(lineBreak)\(trimmed)\n"
         }
 
         content.append(entry)
