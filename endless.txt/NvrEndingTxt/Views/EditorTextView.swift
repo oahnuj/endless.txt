@@ -676,7 +676,8 @@ struct EditorTextView: NSViewRepresentable {
         // MARK: - Strikethrough
 
         @objc func toggleStrikethrough() {
-            guard let textView = textView else { return }
+            guard let textView = textView,
+                  textView.window?.firstResponder === textView else { return }
 
             let selectedRange = textView.selectedRange()
             let content = textView.string as NSString
@@ -720,7 +721,8 @@ struct EditorTextView: NSViewRepresentable {
         // MARK: - Checkbox
 
         @objc func toggleCheckbox() {
-            guard let textView = textView else { return }
+            guard let textView = textView,
+                  textView.window?.firstResponder === textView else { return }
 
             let selectedRange = textView.selectedRange()
             let content = textView.string as NSString
