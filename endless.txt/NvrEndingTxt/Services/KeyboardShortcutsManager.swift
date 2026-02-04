@@ -27,6 +27,9 @@ extension KeyboardShortcuts.Name {
 
     // Display
     static let toggleTimestamps = Self("toggleTimestamps", default: .init(.t, modifiers: [.command, .option]))
+
+    // Help
+    static let showShortcutsHelp = Self("showShortcutsHelp", default: .init(.slash, modifiers: [.command, .shift]))
 }
 
 // MARK: - Shortcuts Manager
@@ -83,6 +86,11 @@ final class KeyboardShortcutsManager {
         KeyboardShortcuts.onKeyDown(for: .toggleTimestamps) {
             AppSettings.shared.displayTimestamps.toggle()
         }
+
+        // Help
+        KeyboardShortcuts.onKeyDown(for: .showShortcutsHelp) {
+            NotificationCenter.default.post(name: .showShortcutsHelp, object: nil)
+        }
     }
 
     /// Remove shortcuts from previous versions that are no longer used
@@ -106,5 +114,6 @@ final class KeyboardShortcutsManager {
         KeyboardShortcuts.disable(.toggleStrikethrough)
         KeyboardShortcuts.disable(.toggleCheckbox)
         KeyboardShortcuts.disable(.toggleTimestamps)
+        KeyboardShortcuts.disable(.showShortcutsHelp)
     }
 }

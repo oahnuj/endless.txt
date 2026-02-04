@@ -41,7 +41,7 @@ struct SettingsView: View {
                 }
                 .tag(SettingsTab.about)
         }
-        .frame(width: 440, height: 420)
+        .frame(width: 460, height: 480)
         .onAppear {
             if #available(macOS 13.0, *) {
                 launchAtLogin = SMAppService.mainApp.status == .enabled
@@ -144,41 +144,48 @@ struct GeneralSettingsView: View {
                 }
 
                 Section("Storage") {
-                    HStack {
+                    VStack(alignment: .leading, spacing: 8) {
                         Text(settings.fileLocation.isEmpty
                              ? "~/Documents/endless.txt"
                              : settings.fileLocation)
                             .font(.system(.caption, design: .monospaced))
-                            .foregroundColor(.secondary)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Color(nsColor: .controlBackgroundColor))
+                            .cornerRadius(4)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 4)
+                                    .stroke(Color.gray.opacity(0.2), lineWidth: 0.5)
+                            )
                             .lineLimit(1)
                             .truncationMode(.middle)
 
-                        Spacer()
-
-                        Button("Change") {
-                            showFilePicker = true
-                        }
-                        .font(.caption)
-
-                        if !settings.fileLocation.isEmpty {
-                            Button("Reset") {
-                                settings.fileLocation = ""
+                        HStack(spacing: 10) {
+                            Button("Change…") {
+                                showFilePicker = true
                             }
                             .font(.caption)
-                            .foregroundColor(.secondary)
-                        }
-                    }
 
-                    HStack {
-                        Button("Reveal in Finder") {
-                            revealFile()
-                        }
-                        .font(.caption)
+                            if !settings.fileLocation.isEmpty {
+                                Button("Reset") {
+                                    settings.fileLocation = ""
+                                }
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                            }
 
-                        Button("Reload File") {
-                            FileService.shared.loadContent()
+                            Spacer()
+
+                            Button("Reveal in Finder") {
+                                revealFile()
+                            }
+                            .font(.caption)
+
+                            Button("Reload") {
+                                FileService.shared.loadContent()
+                            }
+                            .font(.caption)
                         }
-                        .font(.caption)
                     }
                 }
 
@@ -198,37 +205,25 @@ struct GeneralSettingsView: View {
 
                 Section("Timestamps") {
                     Toggle("Display timestamps", isOn: $settings.displayTimestamps)
-                    Text("Show or hide timestamps in the editor (⌥⌘T)")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                        .help("Toggle with ⌥⌘T")
 
                     Toggle("Add timestamps to new entries", isOn: $settings.addTimestampsToEntries)
 
                     if settings.addTimestampsToEntries {
                         Picker("Position", selection: $settings.timestampPosition) {
-                            Text("Left (inline)").tag("left")
-                            Text("Top (separate line)").tag("top")
+                            Text("Inline").tag("left")
+                            Text("Above").tag("top")
                         }
                         .pickerStyle(.segmented)
-
-                        Text(settings.timestampPosition == "left"
-                             ? "Format: [timestamp] your text"
-                             : "Format: [timestamp]\\nyour text")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
                     }
                 }
 
                 Section("Entries") {
                     Toggle("Auto-insert day separator", isOn: $settings.autoInsertDaySeparator)
-                    Text("Adds \"---\" between entries from different days")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                        .help("Adds \"---\" between entries from different days")
 
                     Toggle("Compact view", isOn: $settings.compactEntries)
-                    Text("Remove extra line breaks between entries")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                        .help("Remove extra line breaks between entries")
                 }
             }
             .formStyle(.grouped)
@@ -352,11 +347,11 @@ struct AppearanceSettingsView: View {
                     Picker("Color Theme", selection: $settings.themeName) {
                         ForEach(AppTheme.allCases) { theme in
                             HStack(spacing: 8) {
-                                HStack(spacing: 3) {
-                                    Circle().fill(theme.backgroundColor).frame(width: 10, height: 10)
+                                HStack(spacing: 4) {
+                                    Circle().fill(theme.backgroundColor).frame(width: 12, height: 12)
                                         .overlay(Circle().stroke(Color.gray.opacity(0.3), lineWidth: 0.5))
-                                    Circle().fill(theme.textColor).frame(width: 10, height: 10)
-                                    Circle().fill(theme.accentColor).frame(width: 10, height: 10)
+                                    Circle().fill(theme.textColor).frame(width: 12, height: 12)
+                                    Circle().fill(theme.accentColor).frame(width: 12, height: 12)
                                 }
                                 Text(theme.rawValue)
                             }
@@ -364,6 +359,19 @@ struct AppearanceSettingsView: View {
                         }
                     }
                     .pickerStyle(.radioGroup)
+                }
+
+                Section("Window") {
+                    HStack {
+                        Text("Opacity")
+                        Slider(value: $settings.windowOpacity, in: 0.3...1.0, step: 0.05)
+                            .onChange(of: settings.windowOpacity) { _ in
+                                NotificationCenter.default.post(name: .windowOpacityChanged, object: nil)
+                            }
+                        Text("\(Int(settings.windowOpacity * 100))%")
+                            .font(.system(.caption, design: .monospaced))
+                            .frame(width: 36, alignment: .trailing)
+                    }
                 }
 
                 Section("Font") {
@@ -377,23 +385,25 @@ struct AppearanceSettingsView: View {
                     HStack {
                         Text("Size")
                         Slider(value: $settings.fontSize, in: 10...18, step: 1)
-                        Text("\(Int(settings.fontSize))")
-                            .monospacedDigit()
-                            .frame(width: 24)
+                        Text("\(Int(settings.fontSize))pt")
+                            .font(.system(.caption, design: .monospaced))
+                            .frame(width: 32, alignment: .trailing)
                     }
                 }
 
                 Section("Formatting") {
                     Toggle("Enable markdown", isOn: $settings.enableMarkdown)
-                    Text("**bold**, *italic*, ~~strike~~, __underline__, URLs")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                        .help("**bold**, *italic*, ~~strike~~, __underline__, URLs")
                 }
 
                 Section("Preview") {
                     ThemePreviewView()
-                        .frame(height: 50)
-                        .clipShape(RoundedRectangle(cornerRadius: 4))
+                        .frame(height: 80)
+                        .clipShape(RoundedRectangle(cornerRadius: 6))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 6)
+                                .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                        )
                 }
             }
             .formStyle(.grouped)
@@ -567,8 +577,8 @@ struct KeyboardShortcutBadge: View {
     var body: some View {
         Text(shortcut)
             .font(.system(.caption, design: .monospaced))
-            .padding(.horizontal, 8)
-            .padding(.vertical, 3)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 5)
             .background(Color(nsColor: .controlBackgroundColor))
             .cornerRadius(4)
             .overlay(
@@ -584,27 +594,30 @@ struct ThemePreviewView: View {
     @ObservedObject private var settings = AppSettings.shared
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 2) {
+        VStack(alignment: .leading, spacing: 4) {
             if settings.timestampPosition == "top" {
                 // Top format: timestamp on its own line
                 Text("[2024-02-03 14:30]")
-                    .font(.custom(settings.fontName, size: settings.fontSize - 3))
+                    .font(.custom(settings.fontName, size: settings.fontSize - 2))
                     .foregroundColor(settings.theme.timestampColor)
-                Text("Sample #idea")
-                    .font(.custom(settings.fontName, size: settings.fontSize - 1))
+                Text("Sample thought with #idea tag")
+                    .font(.custom(settings.fontName, size: settings.fontSize))
                     .foregroundColor(settings.theme.textColor)
             } else {
                 // Left format: inline timestamp
-                Text("[2024-02-03 14:30] Sample #idea")
-                    .font(.custom(settings.fontName, size: settings.fontSize - 1))
+                Text("[2024-02-03 14:30] Sample thought with #idea tag")
+                    .font(.custom(settings.fontName, size: settings.fontSize))
                     .foregroundColor(settings.theme.textColor)
             }
-            Text("Quick thought...")
-                .font(.custom(settings.fontName, size: settings.fontSize - 2))
+            Text("Another line of text...")
+                .font(.custom(settings.fontName, size: settings.fontSize))
                 .foregroundColor(settings.theme.secondaryTextColor)
+            Text("https://example.com")
+                .font(.custom(settings.fontName, size: settings.fontSize - 1))
+                .foregroundColor(settings.theme.accentColor)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(10)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+        .padding(12)
         .background(settings.theme.backgroundColor)
     }
 }
@@ -613,43 +626,45 @@ struct ThemePreviewView: View {
 
 struct AboutView: View {
     var body: some View {
-        VStack(spacing: 10) {
+        VStack(spacing: 12) {
             Spacer()
 
             Image(systemName: "text.alignleft")
-                .font(.system(size: 36))
+                .font(.system(size: 44))
                 .foregroundColor(.accentColor)
 
             Text("endless.txt")
-                .font(.title3.bold())
+                .font(.title2.bold())
 
             Text("Infinite thought capture")
-                .font(.caption)
+                .font(.subheadline)
                 .foregroundColor(.secondary)
 
             Text("v1.0.0")
-                .font(.caption2)
-                .foregroundColor(.secondary)
+                .font(.system(.caption, design: .monospaced))
+                .foregroundColor(.secondary.opacity(0.7))
+                .padding(.top, 2)
 
             Spacer()
 
-            VStack(spacing: 6) {
+            VStack(spacing: 8) {
                 HStack(spacing: 4) {
                     Text("Built by")
-                        .font(.caption2)
+                        .font(.caption)
                         .foregroundColor(.secondary)
                     Link("@starigade", destination: URL(string: "https://github.com/oahnuj")!)
-                        .font(.caption2)
+                        .font(.caption)
                 }
 
                 HStack(spacing: 4) {
                     Text("Inspired by")
-                        .font(.caption2)
+                        .font(.caption)
                         .foregroundColor(.secondary)
                     Link("Jeff Huang", destination: URL(string: "https://jeffhuang.com/productivity_text_file/")!)
-                        .font(.caption2)
+                        .font(.caption)
                 }
             }
+            .padding(.bottom, 8)
 
             Spacer()
         }

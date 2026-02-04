@@ -180,6 +180,7 @@ final class AppSettings: ObservableObject {
     @AppStorage("timestampFormat") var timestampFormat: String = "yyyy-MM-dd HH:mm"
     @AppStorage("enableMarkdown") var enableMarkdown: Bool = true
     @AppStorage("themeName") var themeName: String = "Light"
+    @AppStorage("windowOpacity") var windowOpacity: Double = 1.0 // 0.3 to 1.0
     @AppStorage("timezoneId") var timezoneId: String = "system"
     @AppStorage("fileLocation") var fileLocation: String = ""
     @AppStorage("autoInsertDaySeparator") var autoInsertDaySeparator: Bool = true
@@ -247,4 +248,10 @@ extension Notification.Name {
     // Line navigation
     static let moveToPreviousLineEnd = Notification.Name("moveToPreviousLineEnd")
     static let moveToNextLineEnd = Notification.Name("moveToNextLineEnd")
+
+    // Help
+    static let showShortcutsHelp = Notification.Name("showShortcutsHelp")
+
+    // Window
+    static let windowOpacityChanged = Notification.Name("windowOpacityChanged")
 }

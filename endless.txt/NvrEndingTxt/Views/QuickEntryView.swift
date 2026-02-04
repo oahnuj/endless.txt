@@ -143,9 +143,26 @@ struct QuickEntryTextEditor: NSViewRepresentable {
         var parent: QuickEntryTextEditor
         weak var textView: NSTextView?
         var isUpdating = false
+        private var focusObserver: NSObjectProtocol?
 
         init(_ parent: QuickEntryTextEditor) {
             self.parent = parent
+            super.init()
+
+            // Listen for focus requests
+            focusObserver = NotificationCenter.default.addObserver(
+                forName: .focusQuickEntry,
+                object: nil,
+                queue: .main
+            ) { [weak self] _ in
+                self?.focusTextView()
+            }
+        }
+
+        deinit {
+            if let observer = focusObserver {
+                NotificationCenter.default.removeObserver(observer)
+            }
         }
 
         func textDidChange(_ notification: Notification) {
@@ -153,6 +170,12 @@ struct QuickEntryTextEditor: NSViewRepresentable {
             isUpdating = true
             parent.text = textView.string
             isUpdating = false
+        }
+
+        func focusTextView() {
+            DispatchQueue.main.async { [weak self] in
+                self?.textView?.window?.makeFirstResponder(self?.textView)
+            }
         }
     }
 }
@@ -162,6 +185,7 @@ struct QuickEntryTextEditor: NSViewRepresentable {
 class QuickEntryNSTextView: NSTextView {
     private var checkboxObserver: NSObjectProtocol?
     private var strikethroughObserver: NSObjectProtocol?
+    private var lastCheckboxToggle: Date = .distantPast
 
     convenience init() {
         self.init(frame: .zero)
@@ -217,6 +241,11 @@ class QuickEntryNSTextView: NSTextView {
     // Only special cases (Shift+Tab, checkbox toggle) are handled here
 
     private func toggleCheckbox() {
+        // Debounce to prevent double-firing
+        let now = Date()
+        guard now.timeIntervalSince(lastCheckboxToggle) > 0.1 else { return }
+        lastCheckboxToggle = now
+
         let selectedRange = selectedRange()
         let content = string as NSString
 
@@ -228,10 +257,9 @@ class QuickEntryNSTextView: NSTextView {
         var cursorOffset = 0
 
         if lineText.contains("[x]") || lineText.contains("[X]") {
-            // Remove checkbox
-            newLineText = lineText.replacingOccurrences(of: "[x] ", with: "")
-                .replacingOccurrences(of: "[X] ", with: "")
-            cursorOffset = -4
+            // Toggle to unchecked
+            newLineText = lineText.replacingOccurrences(of: "[x]", with: "[ ]")
+                .replacingOccurrences(of: "[X]", with: "[ ]")
         } else if lineText.contains("[ ]") {
             // Toggle to checked
             newLineText = lineText.replacingOccurrences(of: "[ ]", with: "[x]")

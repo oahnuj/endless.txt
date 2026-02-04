@@ -318,6 +318,7 @@ struct EditorTextView: NSViewRepresentable {
         weak var textView: EditorNSTextView?
 
         private var isUpdatingText = false
+        private var lastCheckboxToggle: Date = .distantPast
 
         init(_ parent: EditorTextView) {
             self.parent = parent
@@ -724,6 +725,11 @@ struct EditorTextView: NSViewRepresentable {
             guard let textView = textView,
                   textView.window?.firstResponder === textView else { return }
 
+            // Debounce to prevent double-firing
+            let now = Date()
+            guard now.timeIntervalSince(lastCheckboxToggle) > 0.1 else { return }
+            lastCheckboxToggle = now
+
             let selectedRange = textView.selectedRange()
             let content = textView.string as NSString
 
@@ -735,10 +741,9 @@ struct EditorTextView: NSViewRepresentable {
             var cursorOffset = 0
 
             if lineText.contains("[x]") || lineText.contains("[X]") {
-                // Remove checkbox
-                newLineText = lineText.replacingOccurrences(of: "[x] ", with: "")
-                    .replacingOccurrences(of: "[X] ", with: "")
-                cursorOffset = -4
+                // Toggle to unchecked
+                newLineText = lineText.replacingOccurrences(of: "[x]", with: "[ ]")
+                    .replacingOccurrences(of: "[X]", with: "[ ]")
             } else if lineText.contains("[ ]") {
                 // Toggle to checked
                 newLineText = lineText.replacingOccurrences(of: "[ ]", with: "[x]")
@@ -789,10 +794,27 @@ class EditorNSTextView: NSTextView {
             return
         }
 
+        // Tab key (with or without shift)
+        if event.keyCode == 48 {
+            if event.modifierFlags.contains(.shift) {
+                NotificationCenter.default.post(name: .focusQuickEntry, object: nil)
+                return
+            }
+        }
+
         super.keyDown(with: event)
     }
 
-    // Shift+Tab always jumps to quick entry
+    // Intercept tab/backtab commands before they're processed
+    override func doCommand(by selector: Selector) {
+        if selector == #selector(insertBacktab(_:)) {
+            NotificationCenter.default.post(name: .focusQuickEntry, object: nil)
+            return
+        }
+        super.doCommand(by: selector)
+    }
+
+    // Shift+Tab always jumps to quick entry (backup method)
     override func insertBacktab(_ sender: Any?) {
         NotificationCenter.default.post(name: .focusQuickEntry, object: nil)
     }

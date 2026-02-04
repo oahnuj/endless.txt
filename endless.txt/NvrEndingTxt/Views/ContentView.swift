@@ -4,6 +4,7 @@ struct ContentView: View {
     @ObservedObject private var fileService = FileService.shared
     @ObservedObject private var settings = AppSettings.shared
     @StateObject private var searchState = SearchState()
+    @State private var showShortcutsHelp = false
 
     var body: some View {
         GeometryReader { geometry in
@@ -35,6 +36,12 @@ struct ContentView: View {
                         .padding(.trailing, 12)
                         .transition(.opacity.combined(with: .move(edge: .top)))
                 }
+
+                // Shortcuts help overlay
+                if showShortcutsHelp {
+                    ShortcutsHelpView(isVisible: $showShortcutsHelp)
+                        .transition(.opacity)
+                }
             }
         }
         .frame(minWidth: 400, minHeight: 400)
@@ -54,6 +61,11 @@ struct ContentView: View {
             withAnimation(.easeInOut(duration: 0.15)) {
                 // Don't reset query - keep it cached
                 searchState.isVisible = false
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .showShortcutsHelp)) { _ in
+            withAnimation(.easeInOut(duration: 0.15)) {
+                showShortcutsHelp.toggle()
             }
         }
     }
@@ -89,6 +101,122 @@ struct EditorView: View {
             }
             .padding(.horizontal, 4)
             .background(settings.theme.backgroundColor)
+    }
+}
+
+// MARK: - Shortcuts Help View
+
+struct ShortcutsHelpView: View {
+    @Binding var isVisible: Bool
+    @ObservedObject private var settings = AppSettings.shared
+
+    private let leftColumn: [(String, [(String, String)])] = [
+        ("General", [
+            ("⌘↵", "Submit"),
+            ("Esc", "Close"),
+            ("⌘,", "Settings"),
+            ("⌘?", "This help"),
+        ]),
+        ("Focus", [
+            ("Tab", "Next field"),
+            ("⇧Tab", "Previous field"),
+        ]),
+        ("Search", [
+            ("⌘F", "Find"),
+            ("⌘G", "Next match"),
+            ("⇧⌘G", "Prev match"),
+        ]),
+    ]
+
+    private let rightColumn: [(String, [(String, String)])] = [
+        ("Navigation", [
+            ("⌘↑", "Prev entry"),
+            ("⌘↓", "Next entry"),
+            ("⌃⌘↑", "Prev line end"),
+            ("⌃⌘↓", "Next line end"),
+        ]),
+        ("Formatting", [
+            ("⇧⌘X", "Strikethrough"),
+            ("⇧⌘T", "Checkbox"),
+            ("⌥⌘T", "Timestamps"),
+        ]),
+    ]
+
+    var body: some View {
+        ZStack {
+            // Dimmed background
+            Color.black.opacity(0.4)
+                .ignoresSafeArea()
+                .onTapGesture {
+                    withAnimation(.easeInOut(duration: 0.15)) {
+                        isVisible = false
+                    }
+                }
+
+            // Shortcuts panel
+            VStack(spacing: 10) {
+                // Header
+                HStack {
+                    Text("Shortcuts")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundColor(settings.theme.textColor)
+                    Spacer()
+                    Text("⌘?")
+                        .font(.system(size: 10, design: .monospaced))
+                        .foregroundColor(settings.theme.secondaryTextColor)
+                        .padding(.horizontal, 5)
+                        .padding(.vertical, 2)
+                        .background(settings.theme.inputBackgroundColor)
+                        .cornerRadius(3)
+                }
+
+                // Two-column layout
+                HStack(alignment: .top, spacing: 14) {
+                    ShortcutsColumn(sections: leftColumn, theme: settings.theme)
+                    ShortcutsColumn(sections: rightColumn, theme: settings.theme)
+                }
+            }
+            .padding(12)
+            .background(settings.theme.backgroundColor)
+            .cornerRadius(10)
+            .shadow(color: .black.opacity(0.3), radius: 15, x: 0, y: 8)
+            .fixedSize()
+        }
+    }
+}
+
+struct ShortcutsColumn: View {
+    let sections: [(String, [(String, String)])]
+    let theme: AppTheme
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            ForEach(sections, id: \.0) { section in
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(section.0)
+                        .font(.system(size: 9, weight: .semibold))
+                        .foregroundColor(theme.accentColor)
+                        .textCase(.uppercase)
+                        .tracking(0.5)
+
+                    ForEach(section.1, id: \.0) { shortcut in
+                        HStack(spacing: 5) {
+                            Text(shortcut.0)
+                                .font(.system(size: 10, design: .monospaced))
+                                .frame(width: 38, alignment: .center)
+                                .padding(.vertical, 2)
+                                .background(theme.inputBackgroundColor)
+                                .cornerRadius(3)
+                                .foregroundColor(theme.textColor)
+
+                            Text(shortcut.1)
+                                .font(.system(size: 10))
+                                .foregroundColor(theme.secondaryTextColor)
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 

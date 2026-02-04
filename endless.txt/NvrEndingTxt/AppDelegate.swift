@@ -114,6 +114,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         panel.contentView?.layer?.cornerRadius = 12
         panel.contentView?.layer?.masksToBounds = true
 
+        // Apply initial opacity
+        panel.alphaValue = AppSettings.shared.windowOpacity
+
+        // Listen for opacity changes
+        NotificationCenter.default.addObserver(forName: .windowOpacityChanged, object: nil, queue: .main) { [weak panel] _ in
+            panel?.alphaValue = AppSettings.shared.windowOpacity
+        }
+
         // Handle Escape key via panel callback
         panel.onEscapePressed = { [weak self] in
             self?.hideOverlay()
