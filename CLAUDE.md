@@ -67,17 +67,55 @@ endless.txt/
 When packaging the app for release:
 - The app must be named **endless.txt** (not NvrEndingTxt)
 - The distributed `.app` bundle should be `endless.txt.app`
-- The ZIP file for distribution should be `endless.txt.zip`
+- The DMG for distribution should be `endless.txt.dmg`
+
+### Build and Package
 
 ```bash
-# Build and package for distribution
 cd endless.txt
-xcodebuild -project NvrEndingTxt.xcodeproj -scheme NvrEndingTxt -configuration Release build CONFIGURATION_BUILD_DIR=dist
-cd dist
-cp -R NvrEndingTxt.app "endless.txt.app"
-hdiutil create -volname "endless.txt" -srcfolder "endless.txt.app" -ov -format UDZO endless.txt.dmg
 
-# Create GitHub release (requires gh CLI authenticated)
+# Clean previous builds to avoid stale file errors
+rm -rf ~/Library/Developer/Xcode/DerivedData/NvrEndingTxt-*
+rm -rf dist build
+
+# Build release
+xcodebuild -project NvrEndingTxt.xcodeproj -scheme NvrEndingTxt -configuration Release build
+
+# Copy to dist folder
+BUILD_DIR=$(xcodebuild -project NvrEndingTxt.xcodeproj -scheme NvrEndingTxt -configuration Release -showBuildSettings 2>/dev/null | grep ' BUILT_PRODUCTS_DIR' | awk '{print $3}')
+mkdir -p dist
+cp -R "$BUILD_DIR/NvrEndingTxt.app" dist/
+
+# CRITICAL: Re-sign the app with consistent code signature
+# The Sparkle framework comes pre-signed, which can cause Team ID mismatch errors.
+# This step ensures all nested frameworks use the same ad-hoc signature.
+cd dist
+xattr -cr NvrEndingTxt.app
+codesign --force --deep --sign - NvrEndingTxt.app
+codesign --verify --deep --strict NvrEndingTxt.app
+
+# Rename and create DMG
+cp -R NvrEndingTxt.app "endless.txt.app"
+mkdir -p dmg_contents
+cp -R "endless.txt.app" dmg_contents/
+ln -sf /Applications dmg_contents/Applications
+hdiutil create -volname "endless.txt" -srcfolder dmg_contents -ov -format UDZO endless.txt.dmg
+rm -rf dmg_contents
+```
+
+### Code Signing Notes
+
+**Important:** The app bundles the Sparkle framework for auto-updates. Sparkle comes with its own code signature from the Sparkle developers. When distributing without an Apple Developer ID:
+
+1. The main app is signed ad-hoc (no Team ID)
+2. Sparkle has a different signature origin
+3. macOS will refuse to load the framework due to "different Team IDs" error
+
+**Solution:** Always run `codesign --force --deep --sign -` on the final `.app` bundle before distribution. This re-signs all nested frameworks with a consistent ad-hoc signature.
+
+### Create GitHub Release
+
+```bash
 gh release create v1.x.x --title "endless.txt v1.x.x" --notes "Release notes here" endless.txt.dmg
 ```
 
