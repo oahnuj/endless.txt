@@ -25,7 +25,7 @@ Inspired by [Jeff Huang's productivity text file](https://jeffhuang.com/producti
 
 ## Download
 
-**[Download endless.txt.dmg](https://github.com/oahnuj/endless.txt/releases/latest)** (macOS 13.0+)
+**[Download endless.txt.dmg](https://github.com/starigade/endless.txt/releases/latest)** (macOS 13.0+)
 
 1. Download `endless.txt.dmg` from the latest release
 2. Open the DMG and drag `endless.txt.app` to your Applications folder
@@ -50,7 +50,7 @@ This only needs to be done once. The app is open-source and safe to use.
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/oahnuj/endless.txt.git
+   git clone https://github.com/starigade/endless.txt.git
    cd endless.txt/endless.txt
    ```
 
