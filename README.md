@@ -14,7 +14,9 @@ Inspired by [Jeff Huang's productivity text file](https://jeffhuang.com/producti
 - **Plain text storage** - All thoughts saved to `~/Documents/endless.txt` (customizable)
 - **Quick entry** - Timestamped entries with a single keystroke (⌘+Enter)
 - **Markdown support** - **bold**, *italic*, ~~strikethrough~~, __underline__, and clickable URLs
+- **Hashtag support** - `#tags` are highlighted, with autocomplete for previously used tags
 - **Search** - Find text with ⌘F, navigate matches with ⌘G / ⌘⇧G
+- **Tag jump** - Jump between occurrences of the same hashtag with ⌘J
 - **Entry navigation** - Jump between notes with ⌘↑ / ⌘↓
 - **5 themes** - Light, Dark, Solarized Dark, Monokai, Nord
 - **Customizable shortcuts** - Change all keyboard shortcuts to your preference
@@ -91,6 +93,7 @@ This only needs to be done once. The app is open-source and safe to use.
 | ⌘+↓ | Jump to next note (end of note) |
 | ⌘+Ctrl+↑ | Move to previous line end |
 | ⌘+Ctrl+↓ | Move to next line end |
+| ⌘+J | Jump to next occurrence of hashtag at cursor |
 
 #### Formatting
 | Shortcut | Action |
@@ -136,6 +139,15 @@ Toggle checkboxes with ⌘+Shift+C:
 [ ] unchecked task
 [x] completed task
 ```
+
+### Hashtags
+
+Use `#hashtags` to organize your notes:
+
+- Hashtags are highlighted with the theme's accent color
+- Type `#` to see autocomplete suggestions of previously used tags
+- Click on a hashtag to highlight all occurrences
+- Press ⌘+J to jump between occurrences of the same tag
 
 ## Settings
 

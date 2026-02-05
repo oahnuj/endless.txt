@@ -187,6 +187,12 @@ class QuickEntryNSTextView: NSTextView {
     private var strikethroughObserver: NSObjectProtocol?
     private var lastCheckboxToggle: Date = .distantPast
 
+    // Autocomplete state
+    private var autocompleteWindow: NSWindow?
+    private var autocompleteStackView: NSStackView?
+    private var autocompletePrefix: String = ""
+    private var autocompleteStartLocation: Int = 0
+
     convenience init() {
         self.init(frame: .zero)
     }
@@ -326,14 +332,232 @@ class QuickEntryNSTextView: NSTextView {
     override func keyDown(with event: NSEvent) {
         let flags = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
 
+        // Escape key - dismiss autocomplete
+        if event.keyCode == 53 {
+            dismissAutocomplete()
+            return
+        }
+
         // Shift+Tab - focus main editor
         if event.keyCode == 48 && flags == .shift {
             NotificationCenter.default.post(name: .focusEditor, object: nil)
             return
         }
 
+        // Track text length before processing
+        let previousLength = string.count
+
         super.keyDown(with: event)
+
+        // Only check autocomplete if text actually changed
+        let currentLength = string.count
+        if currentLength != previousLength {
+            DispatchQueue.main.async { [weak self] in
+                self?.checkForHashtagAutocomplete()
+            }
+        } else {
+            dismissAutocomplete()
+        }
     }
+
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+
+        // Dismiss autocomplete when window loses focus
+        if let window = window {
+            NotificationCenter.default.addObserver(
+                forName: NSWindow.didResignKeyNotification,
+                object: window,
+                queue: .main
+            ) { [weak self] _ in
+                self?.dismissAutocomplete()
+            }
+        }
+    }
+
+    // MARK: - Hashtag Autocomplete
+
+    private func checkForHashtagAutocomplete() {
+        let cursorPos = selectedRange().location
+        guard cursorPos > 0 else {
+            dismissAutocomplete()
+            return
+        }
+
+        let content = string as NSString
+
+        // Check if cursor is at the END of a word
+        if cursorPos < content.length {
+            let nextChar = content.substring(with: NSRange(location: cursorPos, length: 1))
+            if let char = nextChar.first, char.isLetter || char.isNumber || char == "_" {
+                dismissAutocomplete()
+                return
+            }
+        }
+
+        // Find the start of the current word (looking back for #)
+        var startPos = cursorPos - 1
+        while startPos >= 0 {
+            let char = content.substring(with: NSRange(location: startPos, length: 1))
+            if char == "#" {
+                let prefix = content.substring(with: NSRange(location: startPos, length: cursorPos - startPos))
+                let wordPart = String(prefix.dropFirst())
+                let isValidHashtagPrefix = wordPart.isEmpty || wordPart.allSatisfy { $0.isLetter || $0.isNumber || $0 == "_" }
+
+                if isValidHashtagPrefix {
+                    showAutocomplete(for: prefix, at: startPos)
+                } else {
+                    dismissAutocomplete()
+                }
+                return
+            } else if !char.first!.isLetter && !char.first!.isNumber && char != "_" {
+                dismissAutocomplete()
+                return
+            }
+            startPos -= 1
+        }
+
+        dismissAutocomplete()
+    }
+
+    private func showAutocomplete(for prefix: String, at location: Int) {
+        let hashtagState = HashtagState.shared
+
+        autocompletePrefix = prefix
+        autocompleteStartLocation = location
+
+        let matchingTags = hashtagState.matchingTags(for: prefix)
+            .filter { $0.lowercased() != prefix.lowercased() }
+            .prefix(5)
+
+        let suggestions = matchingTags.map { tag in
+            (tag: tag, count: hashtagState.usageCount(for: tag))
+        }
+
+        if suggestions.isEmpty {
+            dismissAutocomplete()
+            return
+        }
+
+        if autocompleteWindow == nil {
+            createAutocompleteWindow()
+        }
+
+        // Populate stack view
+        guard let stackView = autocompleteStackView else { return }
+        stackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
+
+        for suggestion in suggestions {
+            let rowView = NSView()
+            rowView.translatesAutoresizingMaskIntoConstraints = false
+
+            let tagLabel = NSTextField(labelWithString: suggestion.tag)
+            tagLabel.font = NSFont.systemFont(ofSize: 13, weight: .regular)
+            tagLabel.textColor = NSColor.labelColor
+            tagLabel.translatesAutoresizingMaskIntoConstraints = false
+
+            let countLabel = NSTextField(labelWithString: "\(suggestion.count)")
+            countLabel.font = NSFont.monospacedDigitSystemFont(ofSize: 11, weight: .regular)
+            countLabel.textColor = NSColor.tertiaryLabelColor
+            countLabel.translatesAutoresizingMaskIntoConstraints = false
+
+            rowView.addSubview(tagLabel)
+            rowView.addSubview(countLabel)
+
+            NSLayoutConstraint.activate([
+                rowView.heightAnchor.constraint(equalToConstant: 24),
+                tagLabel.leadingAnchor.constraint(equalTo: rowView.leadingAnchor),
+                tagLabel.centerYAnchor.constraint(equalTo: rowView.centerYAnchor),
+                countLabel.trailingAnchor.constraint(equalTo: rowView.trailingAnchor),
+                countLabel.centerYAnchor.constraint(equalTo: rowView.centerYAnchor),
+            ])
+
+            stackView.addArrangedSubview(rowView)
+            rowView.widthAnchor.constraint(equalTo: stackView.widthAnchor).isActive = true
+        }
+
+        guard let layoutManager = layoutManager,
+              let textContainer = textContainer else { return }
+
+        let glyphRange = layoutManager.glyphRange(forCharacterRange: NSRange(location: location, length: 1), actualCharacterRange: nil)
+        let rect = layoutManager.boundingRect(forGlyphRange: glyphRange, in: textContainer)
+        let lineBottom = rect.origin.y + rect.height + textContainerInset.height
+        let xPosition = rect.origin.x + textContainerInset.width
+
+        let bottomPoint = convert(NSPoint(x: xPosition, y: lineBottom), to: nil)
+        guard let screenPoint = window?.convertPoint(toScreen: bottomPoint) else { return }
+
+        let rowHeight: CGFloat = 24
+        let verticalPadding: CGFloat = 12
+        let windowHeight = CGFloat(suggestions.count) * rowHeight + verticalPadding
+        let windowWidth: CGFloat = 150
+
+        autocompleteWindow?.setFrame(
+            NSRect(x: screenPoint.x - 6, y: screenPoint.y - windowHeight - 4, width: windowWidth, height: windowHeight),
+            display: true
+        )
+
+        autocompleteWindow?.alphaValue = 0
+        autocompleteWindow?.orderFront(nil)
+        NSAnimationContext.runAnimationGroup { context in
+            context.duration = 0.12
+            autocompleteWindow?.animator().alphaValue = 1
+        }
+    }
+
+    private func createAutocompleteWindow() {
+        let window = NonActivatingPanel(
+            contentRect: NSRect(x: 0, y: 0, width: 160, height: 100),
+            styleMask: [.borderless, .nonactivatingPanel],
+            backing: .buffered,
+            defer: false
+        )
+        window.level = .floating
+        window.isReleasedWhenClosed = false
+        window.hidesOnDeactivate = false
+
+        // Use solid background to avoid white corner artifacts
+        let containerView = NSView()
+        containerView.wantsLayer = true
+        containerView.layer?.backgroundColor = NSColor.windowBackgroundColor.cgColor
+        containerView.layer?.cornerRadius = 6
+        containerView.layer?.masksToBounds = true
+        containerView.layer?.shadowColor = NSColor.black.cgColor
+        containerView.layer?.shadowOpacity = 0.15
+        containerView.layer?.shadowOffset = CGSize(width: 0, height: -2)
+        containerView.layer?.shadowRadius = 8
+
+        let stackView = NSStackView()
+        stackView.orientation = .vertical
+        stackView.alignment = .leading
+        stackView.spacing = 0
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+
+        containerView.addSubview(stackView)
+        window.contentView = containerView
+
+        NSLayoutConstraint.activate([
+            stackView.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 6),
+            stackView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 10),
+            stackView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -10),
+            stackView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -6),
+        ])
+
+        autocompleteWindow = window
+        autocompleteStackView = stackView
+    }
+
+    private func dismissAutocomplete() {
+        autocompleteWindow?.orderOut(nil)
+    }
+}
+
+// MARK: - Non-Activating Panel for Autocomplete
+
+/// A panel that never becomes key window, preventing focus stealing from text views
+class NonActivatingPanel: NSPanel {
+    override var canBecomeKey: Bool { false }
+    override var canBecomeMain: Bool { false }
 }
 
 #Preview {

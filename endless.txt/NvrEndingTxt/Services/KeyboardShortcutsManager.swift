@@ -30,6 +30,9 @@ extension KeyboardShortcuts.Name {
 
     // Help
     static let showShortcutsHelp = Self("showShortcutsHelp", default: .init(.slash, modifiers: [.command, .shift]))
+
+    // Hashtag features
+    static let tagJump = Self("tagJump", default: .init(.j, modifiers: .command))
 }
 
 // MARK: - Shortcuts Manager
@@ -91,6 +94,11 @@ final class KeyboardShortcutsManager {
         KeyboardShortcuts.onKeyDown(for: .showShortcutsHelp) {
             NotificationCenter.default.post(name: .showShortcutsHelp, object: nil)
         }
+
+        // Hashtag features
+        KeyboardShortcuts.onKeyDown(for: .tagJump) {
+            NotificationCenter.default.post(name: .tagJump, object: nil)
+        }
     }
 
     /// Remove shortcuts from previous versions that are no longer used
@@ -115,5 +123,6 @@ final class KeyboardShortcutsManager {
         KeyboardShortcuts.disable(.toggleCheckbox)
         KeyboardShortcuts.disable(.toggleTimestamps)
         KeyboardShortcuts.disable(.showShortcutsHelp)
+        KeyboardShortcuts.disable(.tagJump)
     }
 }

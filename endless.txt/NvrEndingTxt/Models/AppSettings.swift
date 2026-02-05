@@ -254,4 +254,12 @@ extension Notification.Name {
 
     // Window
     static let windowOpacityChanged = Notification.Name("windowOpacityChanged")
+
+    // Updates
+    static let checkForUpdates = Notification.Name("checkForUpdates")
+
+    // Hashtag features
+    static let tagJump = Notification.Name("tagJump")
+    static let hashtagClicked = Notification.Name("hashtagClicked")
+    static let clearHashtagFilter = Notification.Name("clearHashtagFilter")
 }

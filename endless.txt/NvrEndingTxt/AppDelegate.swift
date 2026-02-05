@@ -13,6 +13,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     // Sparkle updater
     private var updaterController: SPUStandardUpdaterController!
 
+    // Track overlay state to handle hotkey toggle correctly
+    private var isOverlayShown = false
+
     // UserDefaults keys for window frame
     private let windowFrameKey = "overlayWindowFrame"
 
@@ -24,6 +27,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         setupOverlayPanel()
         setupHotkey()
         setupKeyboardShortcuts()
+
+        // Listen for check for updates notification
+        NotificationCenter.default.addObserver(forName: .checkForUpdates, object: nil, queue: .main) { [weak self] _ in
+            self?.updaterController.checkForUpdates(nil)
+        }
 
         // Hide dock icon (backup - Info.plist should handle this)
         NSApp.setActivationPolicy(.accessory)
@@ -54,8 +62,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let openItem = NSMenuItem(title: "Open  ⌘⇧Space", action: #selector(showOverlay), keyEquivalent: "")
         menu.addItem(openItem)
         menu.addItem(NSMenuItem.separator())
-        menu.addItem(NSMenuItem(title: "Check for Updates...", action: #selector(checkForUpdates), keyEquivalent: ""))
-        menu.addItem(NSMenuItem(title: "Settings...", action: #selector(openSettings), keyEquivalent: ","))
+        let updateItem = NSMenuItem(title: "Check for Updates...", action: #selector(checkForUpdates), keyEquivalent: "")
+        updateItem.image = NSImage(systemSymbolName: "arrow.triangle.2.circlepath", accessibilityDescription: "Check for Updates")
+        menu.addItem(updateItem)
+        let settingsItem = NSMenuItem(title: "Settings...", action: #selector(openSettings), keyEquivalent: ",")
+        settingsItem.image = NSImage(systemSymbolName: "gear", accessibilityDescription: "Settings")
+        menu.addItem(settingsItem)
         menu.addItem(NSMenuItem.separator())
         menu.addItem(NSMenuItem(title: "Quit", action: #selector(quitApp), keyEquivalent: "q"))
 
@@ -80,8 +92,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let openItem = NSMenuItem(title: "Open  \(shortcut)", action: #selector(showOverlay), keyEquivalent: "")
         menu.addItem(openItem)
         menu.addItem(NSMenuItem.separator())
-        menu.addItem(NSMenuItem(title: "Check for Updates...", action: #selector(checkForUpdates), keyEquivalent: ""))
-        menu.addItem(NSMenuItem(title: "Settings...", action: #selector(openSettings), keyEquivalent: ","))
+        let updateItem = NSMenuItem(title: "Check for Updates...", action: #selector(checkForUpdates), keyEquivalent: "")
+        updateItem.image = NSImage(systemSymbolName: "arrow.triangle.2.circlepath", accessibilityDescription: "Check for Updates")
+        menu.addItem(updateItem)
+        let settingsItem = NSMenuItem(title: "Settings...", action: #selector(openSettings), keyEquivalent: ",")
+        settingsItem.image = NSImage(systemSymbolName: "gear", accessibilityDescription: "Settings")
+        menu.addItem(settingsItem)
         menu.addItem(NSMenuItem.separator())
         menu.addItem(NSMenuItem(title: "Quit", action: #selector(quitApp), keyEquivalent: "q"))
         statusItem?.menu = menu
@@ -202,7 +218,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     // MARK: - Actions
 
     @objc func toggleOverlay() {
-        if overlayPanel?.isVisible == true {
+        if isOverlayShown {
             hideOverlay()
         } else {
             showOverlay()
@@ -211,6 +227,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc func showOverlay() {
         guard let panel = overlayPanel else { return }
+
+        isOverlayShown = true
 
         // Only center if no saved position
         if loadSavedFrame() == nil {
@@ -231,6 +249,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc func hideOverlay() {
+        isOverlayShown = false
         saveWindowFrame()
         overlayPanel?.orderOut(nil)
     }

@@ -33,11 +33,18 @@ This is a macOS menu bar app (no dock icon) for quick thought capture to a singl
 
 - **AppSettings** (`Models/AppSettings.swift`) - Singleton using `@AppStorage` for UserDefaults-backed preferences. Contains theme definitions (`AppTheme` enum) and shortcut key configuration.
 
+- **HashtagState** (`Views/EditorTextView.swift`) - Singleton tracking used hashtags across the document. Maintains counts, recent usage order, and provides matching suggestions for autocomplete.
+
+- **KeyboardShortcutsManager** (`Services/KeyboardShortcutsManager.swift`) - Manages in-app keyboard shortcuts using the KeyboardShortcuts library. Handles search, navigation, formatting, and tag jump shortcuts.
+
 ### Communication Patterns
 
 Cross-component communication uses `NotificationCenter`:
 - `.focusQuickEntry` - Focus the quick entry text field when panel opens
 - `.hotkeyChanged` - Re-register global hotkey when user changes shortcut
+- `.tagJump` - Jump to next occurrence of hashtag at cursor
+- `.hashtagClicked` - Highlight all occurrences of clicked hashtag
+- `.clearHashtagFilter` - Clear hashtag highlight filter
 
 ### Window Behavior
 

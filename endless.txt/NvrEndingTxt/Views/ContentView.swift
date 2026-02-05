@@ -4,6 +4,7 @@ struct ContentView: View {
     @ObservedObject private var fileService = FileService.shared
     @ObservedObject private var settings = AppSettings.shared
     @StateObject private var searchState = SearchState()
+    @ObservedObject private var hashtagState = HashtagState.shared
     @State private var showShortcutsHelp = false
 
     var body: some View {
@@ -16,7 +17,7 @@ struct ContentView: View {
                         .frame(height: 20)
 
                     // Main editor area - 70% of remaining height
-                    EditorView(content: $fileService.content, searchState: searchState)
+                    EditorView(content: $fileService.content, searchState: searchState, hashtagState: hashtagState)
                         .frame(height: (geometry.size.height - 21) * 0.7)
 
                     // Subtle separator - no extra spacing
@@ -91,11 +92,12 @@ struct DragHandleView: View {
 struct EditorView: View {
     @Binding var content: String
     @ObservedObject var searchState: SearchState
+    @ObservedObject var hashtagState: HashtagState
     @ObservedObject private var fileService = FileService.shared
     @ObservedObject private var settings = AppSettings.shared
 
     var body: some View {
-        EditorTextView(text: $content, searchState: searchState)
+        EditorTextView(text: $content, searchState: searchState, hashtagState: hashtagState)
             .onChange(of: content) { _ in
                 fileService.save()
             }
@@ -134,6 +136,7 @@ struct ShortcutsHelpView: View {
             ("⌘↓", "Next entry"),
             ("⌃⌘↑", "Prev line end"),
             ("⌃⌘↓", "Next line end"),
+            ("⌘J", "Jump to tag"),
         ]),
         ("Formatting", [
             ("⇧⌘X", "Strikethrough"),

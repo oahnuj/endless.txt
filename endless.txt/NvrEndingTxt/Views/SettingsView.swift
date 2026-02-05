@@ -509,6 +509,7 @@ struct ShortcutsSettingsView: View {
                 KeyboardShortcuts.Recorder("Next Day", name: .nextDay)
                 KeyboardShortcuts.Recorder("Previous Line End", name: .previousLineEnd)
                 KeyboardShortcuts.Recorder("Next Line End", name: .nextLineEnd)
+                KeyboardShortcuts.Recorder("Jump to Tag", name: .tagJump)
             }
 
             Section("Formatting") {
@@ -520,7 +521,8 @@ struct ShortcutsSettingsView: View {
                 Button("Reset All to Defaults") {
                     KeyboardShortcuts.reset(.toggleSearch, .findNext, .findPrevious,
                                            .previousDay, .nextDay, .previousLineEnd, .nextLineEnd,
-                                           .toggleStrikethrough, .toggleCheckbox, .toggleTimestamps)
+                                           .toggleStrikethrough, .toggleCheckbox, .toggleTimestamps,
+                                           .tagJump)
                     settings.toggleShortcut = ShortcutKey.defaultToggle
                 }
                 .font(.caption)
@@ -683,6 +685,12 @@ struct AboutView: View {
                 .font(.system(.caption, design: .monospaced))
                 .foregroundColor(.secondary.opacity(0.7))
                 .padding(.top, 2)
+
+            Button("Check for Updates...") {
+                NotificationCenter.default.post(name: .checkForUpdates, object: nil)
+            }
+            .buttonStyle(.link)
+            .padding(.top, 4)
 
             Spacer()
 
