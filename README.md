@@ -29,6 +29,19 @@ Inspired by [Jeff Huang's productivity text file](https://jeffhuang.com/producti
 2. Open the DMG and drag `endless.txt.app` to your Applications folder
 3. Launch from Applications or Spotlight
 
+### First Launch (macOS Security)
+
+Since the app is not notarized with Apple, macOS will show a security warning on first launch.
+
+**Option 1:** Right-click the app → **Open** → **Open**
+
+**Option 2:** Run in Terminal:
+```bash
+xattr -cr /Applications/endless.txt.app
+```
+
+This only needs to be done once. The app is open-source and safe to use.
+
 ## Installation
 
 ### From Source
