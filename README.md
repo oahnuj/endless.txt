@@ -197,6 +197,6 @@ Day separators (`---`) are automatically inserted between entries from different
 
 ## Credits
 
-Built by [@starigade](https://github.com/oahnuj)
+Built by [@starigade](https://github.com/starigade)
 
 Inspired by [Jeff Huang's productivity text file](https://jeffhuang.com/productivity_text_file/)

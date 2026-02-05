@@ -681,7 +681,7 @@ struct AboutView: View {
                 .font(.subheadline)
                 .foregroundColor(.secondary)
 
-            Text("v1.0.0")
+            Text("v1.1.0")
                 .font(.system(.caption, design: .monospaced))
                 .foregroundColor(.secondary.opacity(0.7))
                 .padding(.top, 2)
@@ -699,7 +699,7 @@ struct AboutView: View {
                     Text("Built by")
                         .font(.caption)
                         .foregroundColor(.secondary)
-                    Link("@starigade", destination: URL(string: "https://github.com/oahnuj")!)
+                    Link("@starigade", destination: URL(string: "https://github.com/starigade")!)
                         .font(.caption)
                 }
 
