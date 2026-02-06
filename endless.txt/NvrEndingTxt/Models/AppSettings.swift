@@ -71,6 +71,58 @@ enum AppTheme: String, CaseIterable, Identifiable {
         case .nord: return Color(hex: "616E88")
         }
     }
+
+    // MARK: - NSColor versions for reliable AppKit rendering
+
+    var nsBackgroundColor: NSColor {
+        switch self {
+        case .light: return NSColor(hex: "FFFFFF")
+        case .dark: return NSColor(hex: "1E1E1E")
+        case .solarizedDark: return NSColor(hex: "002B36")
+        case .monokai: return NSColor(hex: "272822")
+        case .nord: return NSColor(hex: "2E3440")
+        }
+    }
+
+    var nsTextColor: NSColor {
+        switch self {
+        case .light: return NSColor(hex: "1E1E1E")
+        case .dark: return NSColor(hex: "D4D4D4")
+        case .solarizedDark: return NSColor(hex: "839496")
+        case .monokai: return NSColor(hex: "F8F8F2")
+        case .nord: return NSColor(hex: "ECEFF4")
+        }
+    }
+
+    var nsSecondaryTextColor: NSColor {
+        switch self {
+        case .light: return NSColor(hex: "6E6E6E")
+        case .dark: return NSColor(hex: "808080")
+        case .solarizedDark: return NSColor(hex: "586E75")
+        case .monokai: return NSColor(hex: "75715E")
+        case .nord: return NSColor(hex: "4C566A")
+        }
+    }
+
+    var nsAccentColor: NSColor {
+        switch self {
+        case .light: return NSColor(hex: "007AFF")
+        case .dark: return NSColor(hex: "569CD6")
+        case .solarizedDark: return NSColor(hex: "268BD2")
+        case .monokai: return NSColor(hex: "A6E22E")
+        case .nord: return NSColor(hex: "88C0D0")
+        }
+    }
+
+    var nsTimestampColor: NSColor {
+        switch self {
+        case .light: return NSColor(hex: "999999")
+        case .dark: return NSColor(hex: "666666")
+        case .solarizedDark: return NSColor(hex: "657B83")
+        case .monokai: return NSColor(hex: "75715E")
+        case .nord: return NSColor(hex: "616E88")
+        }
+    }
 }
 
 // MARK: - Color Extension
@@ -96,6 +148,29 @@ extension Color {
             blue: Double(b) / 255,
             opacity: Double(a) / 255
         )
+    }
+}
+
+// MARK: - NSColor Extension for reliable AppKit conversion
+
+import AppKit
+
+extension NSColor {
+    /// Creates an NSColor directly from a hex string - more reliable than Color conversion
+    convenience init(hex: String) {
+        let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
+        var int: UInt64 = 0
+        Scanner(string: hex).scanHexInt64(&int)
+        let r, g, b: CGFloat
+        switch hex.count {
+        case 6:
+            r = CGFloat((int >> 16) & 0xFF) / 255
+            g = CGFloat((int >> 8) & 0xFF) / 255
+            b = CGFloat(int & 0xFF) / 255
+        default:
+            r = 0; g = 0; b = 0
+        }
+        self.init(srgbRed: r, green: g, blue: b, alpha: 1.0)
     }
 }
 

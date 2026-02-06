@@ -119,11 +119,11 @@ struct QuickEntryTextEditor: NSViewRepresentable {
             textView.string = text
         }
 
-        // Apply theme
+        // Apply theme - use NSColor directly from hex for reliability on all macOS versions
         textView.font = NSFont(name: settings.fontName, size: settings.fontSize)
             ?? NSFont.monospacedSystemFont(ofSize: settings.fontSize, weight: .regular)
-        textView.textColor = NSColor(settings.theme.textColor)
-        textView.insertionPointColor = NSColor(settings.theme.accentColor)
+        textView.textColor = settings.theme.nsTextColor
+        textView.insertionPointColor = settings.theme.nsAccentColor
         textView.backgroundColor = .clear
         scrollView.backgroundColor = .clear
 

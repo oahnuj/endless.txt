@@ -209,21 +209,21 @@ struct EditorTextView: NSViewRepresentable {
     private func applyTheme(to textView: NSTextView) {
         let theme = settings.theme
 
-        // Background
-        textView.backgroundColor = NSColor(theme.backgroundColor)
-        textView.enclosingScrollView?.backgroundColor = NSColor(theme.backgroundColor)
+        // Background - use NSColor directly from hex for reliability on all macOS versions
+        textView.backgroundColor = theme.nsBackgroundColor
+        textView.enclosingScrollView?.backgroundColor = theme.nsBackgroundColor
 
         // Text color and font
-        textView.textColor = NSColor(theme.textColor)
+        textView.textColor = theme.nsTextColor
         textView.font = NSFont(name: settings.fontName, size: settings.fontSize) ?? NSFont.monospacedSystemFont(ofSize: settings.fontSize, weight: .regular)
 
         // Insertion point (cursor) color
-        textView.insertionPointColor = NSColor(theme.accentColor)
+        textView.insertionPointColor = theme.nsAccentColor
 
         // Selection color
         textView.selectedTextAttributes = [
-            .backgroundColor: NSColor(theme.accentColor).withAlphaComponent(0.3),
-            .foregroundColor: NSColor(theme.textColor)
+            .backgroundColor: theme.nsAccentColor.withAlphaComponent(0.3),
+            .foregroundColor: theme.nsTextColor
         ]
     }
 
@@ -263,8 +263,8 @@ struct EditorTextView: NSViewRepresentable {
                 if match.range.length >= 4 {
                     let startMarker = NSRange(location: match.range.location, length: 2)
                     let endMarker = NSRange(location: match.range.location + match.range.length - 2, length: 2)
-                    textStorage.addAttribute(.foregroundColor, value: NSColor(theme.secondaryTextColor).withAlphaComponent(0.3), range: startMarker)
-                    textStorage.addAttribute(.foregroundColor, value: NSColor(theme.secondaryTextColor).withAlphaComponent(0.3), range: endMarker)
+                    textStorage.addAttribute(.foregroundColor, value: theme.nsSecondaryTextColor.withAlphaComponent(0.3), range: startMarker)
+                    textStorage.addAttribute(.foregroundColor, value: theme.nsSecondaryTextColor.withAlphaComponent(0.3), range: endMarker)
                 }
             }
         }
@@ -282,8 +282,8 @@ struct EditorTextView: NSViewRepresentable {
                 if match.range.length >= 2 {
                     let startMarker = NSRange(location: match.range.location, length: 1)
                     let endMarker = NSRange(location: match.range.location + match.range.length - 1, length: 1)
-                    textStorage.addAttribute(.foregroundColor, value: NSColor(theme.secondaryTextColor).withAlphaComponent(0.3), range: startMarker)
-                    textStorage.addAttribute(.foregroundColor, value: NSColor(theme.secondaryTextColor).withAlphaComponent(0.3), range: endMarker)
+                    textStorage.addAttribute(.foregroundColor, value: theme.nsSecondaryTextColor.withAlphaComponent(0.3), range: startMarker)
+                    textStorage.addAttribute(.foregroundColor, value: theme.nsSecondaryTextColor.withAlphaComponent(0.3), range: endMarker)
                 }
             }
         }
@@ -321,8 +321,8 @@ struct EditorTextView: NSViewRepresentable {
                 if match.range.length >= 4 {
                     let startMarker = NSRange(location: match.range.location, length: 2)
                     let endMarker = NSRange(location: match.range.location + match.range.length - 2, length: 2)
-                    textStorage.addAttribute(.foregroundColor, value: NSColor(theme.secondaryTextColor).withAlphaComponent(0.3), range: startMarker)
-                    textStorage.addAttribute(.foregroundColor, value: NSColor(theme.secondaryTextColor).withAlphaComponent(0.3), range: endMarker)
+                    textStorage.addAttribute(.foregroundColor, value: theme.nsSecondaryTextColor.withAlphaComponent(0.3), range: startMarker)
+                    textStorage.addAttribute(.foregroundColor, value: theme.nsSecondaryTextColor.withAlphaComponent(0.3), range: endMarker)
                 }
             }
         }
@@ -331,7 +331,7 @@ struct EditorTextView: NSViewRepresentable {
         if let urlRegex = try? NSRegularExpression(pattern: "https?://[^\\s]+", options: []) {
             let matches = urlRegex.matches(in: textView.string, options: [], range: fullRange)
             for match in matches {
-                textStorage.addAttribute(.foregroundColor, value: NSColor(theme.accentColor), range: match.range)
+                textStorage.addAttribute(.foregroundColor, value: theme.nsAccentColor, range: match.range)
                 textStorage.addAttribute(.underlineStyle, value: NSUnderlineStyle.single.rawValue, range: match.range)
                 // Make it a clickable link
                 let urlString = (textView.string as NSString).substring(with: match.range)
@@ -345,7 +345,7 @@ struct EditorTextView: NSViewRepresentable {
         if let tagRegex = try? NSRegularExpression(pattern: "#[\\w]+", options: []) {
             let matches = tagRegex.matches(in: textView.string, options: [], range: fullRange)
             for match in matches {
-                textStorage.addAttribute(.foregroundColor, value: NSColor(theme.accentColor), range: match.range)
+                textStorage.addAttribute(.foregroundColor, value: theme.nsAccentColor, range: match.range)
             }
         }
     }
@@ -378,7 +378,7 @@ struct EditorTextView: NSViewRepresentable {
                 if settings.displayTimestamps {
                     // Show with smaller font and subtle color
                     textStorage.addAttribute(.font, value: smallFont, range: match.range)
-                    textStorage.addAttribute(.foregroundColor, value: NSColor(theme.timestampColor), range: match.range)
+                    textStorage.addAttribute(.foregroundColor, value: theme.nsTimestampColor, range: match.range)
                 } else {
                     // Hide entire line by making it tiny and invisible
                     textStorage.addAttribute(.font, value: tinyFont, range: match.range)
@@ -399,7 +399,7 @@ struct EditorTextView: NSViewRepresentable {
                 // If line has more content than just the timestamp, it's inline
                 if lineText.count > match.range.length + 2 { // +2 for potential spaces
                     if settings.displayTimestamps {
-                        textStorage.addAttribute(.foregroundColor, value: NSColor(theme.timestampColor), range: match.range)
+                        textStorage.addAttribute(.foregroundColor, value: theme.nsTimestampColor, range: match.range)
                     } else {
                         textStorage.addAttribute(.foregroundColor, value: NSColor.clear, range: match.range)
                     }
@@ -498,8 +498,8 @@ struct EditorTextView: NSViewRepresentable {
 
             // Highlight all matches
             let theme = parent.settings.theme
-            let highlightColor = NSColor(theme.accentColor).withAlphaComponent(0.3)
-            let currentHighlightColor = NSColor(theme.accentColor).withAlphaComponent(0.6)
+            let highlightColor = theme.nsAccentColor.withAlphaComponent(0.3)
+            let currentHighlightColor = theme.nsAccentColor.withAlphaComponent(0.6)
 
             for (index, range) in matchRanges.enumerated() {
                 let color = index == parent.searchState.currentMatchIndex ? currentHighlightColor : highlightColor
@@ -564,7 +564,7 @@ struct EditorTextView: NSViewRepresentable {
             let matches = regex.matches(in: content, options: [], range: fullRange)
 
             let theme = parent.settings.theme
-            let highlightColor = NSColor(theme.accentColor).withAlphaComponent(0.3)
+            let highlightColor = theme.nsAccentColor.withAlphaComponent(0.3)
 
             for match in matches {
                 layoutManager.addTemporaryAttribute(.backgroundColor, value: highlightColor, forCharacterRange: match.range)
@@ -788,7 +788,7 @@ struct EditorTextView: NSViewRepresentable {
 
             // Brief highlight
             let theme = parent.settings.theme
-            let highlightColor = NSColor(theme.accentColor).withAlphaComponent(0.4)
+            let highlightColor = theme.nsAccentColor.withAlphaComponent(0.4)
 
             // Find end of line for highlight
             let content = textView.string as NSString
