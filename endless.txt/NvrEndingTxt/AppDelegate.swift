@@ -38,7 +38,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func setupKeyboardShortcuts() {
-        KeyboardShortcutsManager.shared.setupShortcuts()
+        // Don't enable shortcuts at launch - only when panel is shown
+        // This prevents capturing Cmd+F globally when app is in background
     }
 
     // MARK: - Status Item (Menu Bar)
@@ -244,6 +245,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         panel.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
 
+        // Enable keyboard shortcuts only when panel is visible
+        KeyboardShortcutsManager.shared.setupShortcuts()
+
         // Post notification to focus text field
         NotificationCenter.default.post(name: .focusQuickEntry, object: nil)
     }
@@ -252,6 +256,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         isOverlayShown = false
         saveWindowFrame()
         overlayPanel?.orderOut(nil)
+
+        // Disable shortcuts when panel is hidden to not block system shortcuts
+        KeyboardShortcutsManager.shared.disableShortcuts()
     }
 
     @objc private func openSettings() {
