@@ -681,7 +681,7 @@ struct AboutView: View {
                 .font(.subheadline)
                 .foregroundColor(.secondary)
 
-            Text("v1.1.0")
+            Text("v\(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "?")")
                 .font(.system(.caption, design: .monospaced))
                 .foregroundColor(.secondary.opacity(0.7))
                 .padding(.top, 2)

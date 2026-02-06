@@ -17,8 +17,8 @@ packages:
 
 settings:
   base:
-    MARKETING_VERSION: "1.0.0"
-    CURRENT_PROJECT_VERSION: "1"
+    MARKETING_VERSION: "1.1.2"
+    CURRENT_PROJECT_VERSION: "4"
     DEVELOPMENT_TEAM: ""
 
 targets:
@@ -45,7 +45,7 @@ targets:
         LSUIElement: true
         CFBundleDisplayName: endless.txt
         NSHumanReadableCopyright: ""
-        SUFeedURL: https://raw.githubusercontent.com/oahnuj/endless.txt/main/appcast.xml
+        SUFeedURL: https://raw.githubusercontent.com/starigade/endless.txt/main/appcast.xml
         SUPublicEDKey: 2a/2nd2lvGvv5z7jG/i+LystWjXckMSp1aY+axB8L0g=
     scheme:
       gatherCoverageData: false
