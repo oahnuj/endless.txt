@@ -230,6 +230,7 @@ struct EditorTextView: NSViewRepresentable {
     private func applyMarkdownStyling(to textView: NSTextView) {
         guard settings.enableMarkdown else { return }
         guard let textStorage = textView.textStorage else { return }
+        guard textStorage.length > 0 else { return }
 
         let fullRange = NSRange(location: 0, length: textStorage.length)
         let theme = settings.theme
@@ -244,6 +245,9 @@ struct EditorTextView: NSViewRepresentable {
         let italicDescriptor = baseFont.fontDescriptor
         let italicFont = NSFont(descriptor: italicDescriptor, textTransform: italicTransform)
             ?? baseFont
+
+        // Batch attribute changes for reliable updates on macOS 15+
+        textStorage.beginEditing()
 
         // Remove existing markdown attributes first
         textStorage.removeAttribute(.strikethroughStyle, range: fullRange)
@@ -348,10 +352,13 @@ struct EditorTextView: NSViewRepresentable {
                 textStorage.addAttribute(.foregroundColor, value: theme.nsAccentColor, range: match.range)
             }
         }
+
+        textStorage.endEditing()
     }
 
     private func applyTimestampStyling(to textView: NSTextView) {
         guard let textStorage = textView.textStorage else { return }
+        guard textStorage.length > 0 else { return }
 
         let content = textView.string as NSString
         let fullRange = NSRange(location: 0, length: textStorage.length)
@@ -361,6 +368,9 @@ struct EditorTextView: NSViewRepresentable {
         let smallFont = NSFont(name: settings.fontName, size: settings.fontSize - 2)
             ?? NSFont.monospacedSystemFont(ofSize: settings.fontSize - 2, weight: .regular)
         let tinyFont = NSFont.systemFont(ofSize: 0.1)
+
+        // Batch attribute changes for reliable updates on macOS 15+
+        textStorage.beginEditing()
 
         // Reset font AND foreground color for full range first
         // On macOS 15+, textView.textColor doesn't reliably apply to attributed text,
@@ -409,6 +419,8 @@ struct EditorTextView: NSViewRepresentable {
                 }
             }
         }
+
+        textStorage.endEditing()
     }
 
     // MARK: - Coordinator
@@ -457,8 +469,9 @@ struct EditorTextView: NSViewRepresentable {
             // Keep cursor visible (auto-scroll when typing at end)
             textView.scrollRangeToVisible(textView.selectedRange())
 
-            // Re-apply markdown styling and scan hashtags after text change
+            // Re-apply all styling and scan hashtags after text change
             DispatchQueue.main.async { [weak self] in
+                self?.parent.applyTimestampStyling(to: textView)  // Sets base foreground color
                 self?.parent.applyMarkdownStyling(to: textView)
                 self?.parent.hashtagState.scanHashtags(in: textView.string)
                 self?.isUpdatingText = false
