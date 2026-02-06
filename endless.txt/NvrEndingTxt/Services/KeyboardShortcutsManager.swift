@@ -111,6 +111,21 @@ final class KeyboardShortcutsManager {
         }
     }
 
+    func enableShortcuts() {
+        KeyboardShortcuts.enable(.toggleSearch)
+        KeyboardShortcuts.enable(.findNext)
+        KeyboardShortcuts.enable(.findPrevious)
+        KeyboardShortcuts.enable(.previousDay)
+        KeyboardShortcuts.enable(.nextDay)
+        KeyboardShortcuts.enable(.previousLineEnd)
+        KeyboardShortcuts.enable(.nextLineEnd)
+        KeyboardShortcuts.enable(.toggleStrikethrough)
+        KeyboardShortcuts.enable(.toggleCheckbox)
+        KeyboardShortcuts.enable(.toggleTimestamps)
+        KeyboardShortcuts.enable(.showShortcutsHelp)
+        KeyboardShortcuts.enable(.tagJump)
+    }
+
     func disableShortcuts() {
         KeyboardShortcuts.disable(.toggleSearch)
         KeyboardShortcuts.disable(.findNext)

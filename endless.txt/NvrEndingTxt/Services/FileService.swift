@@ -30,10 +30,10 @@ final class FileService: ObservableObject {
                 Your infinite thought capture space.
 
                 Tips:
-                - Use #tags to categorize thoughts
-                - Press ⌘+Shift+Space to open from anywhere
+                - Press ⌘⇧Space to open from anywhere
+                - Use #tags to organize — press ⌘J to jump between them
+                - Press ⌘F to search, ⌘⇧/ for all shortcuts
                 - Press Esc to dismiss
-                - Press ⌘+Enter to submit quick entry
 
                 ---
 

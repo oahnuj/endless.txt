@@ -39,6 +39,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func setupKeyboardShortcuts() {
         KeyboardShortcutsManager.shared.setupShortcuts()
+        // Start with shortcuts disabled - only enable when overlay is visible
+        KeyboardShortcutsManager.shared.disableShortcuts()
     }
 
     // MARK: - Status Item (Menu Bar)
@@ -230,6 +232,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         isOverlayShown = true
 
+        // Enable keyboard shortcuts when overlay is visible
+        KeyboardShortcutsManager.shared.enableShortcuts()
+
         // Only center if no saved position
         if loadSavedFrame() == nil {
             if let screen = NSScreen.main {
@@ -250,6 +255,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc func hideOverlay() {
         isOverlayShown = false
+        // Disable keyboard shortcuts so they don't interfere with other apps
+        KeyboardShortcutsManager.shared.disableShortcuts()
         saveWindowFrame()
         overlayPanel?.orderOut(nil)
     }
