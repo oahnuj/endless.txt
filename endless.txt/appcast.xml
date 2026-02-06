@@ -7,6 +7,25 @@
         <language>en</language>
 
         <item>
+            <title>Version 1.1.3</title>
+            <pubDate>Thu, 06 Feb 2025 00:00:00 +0000</pubDate>
+            <sparkle:version>5</sparkle:version>
+            <sparkle:shortVersionString>1.1.3</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
+            <description><![CDATA[
+                <h2>endless.txt 1.1.3</h2>
+                <p>Bug fix release</p>
+                <ul>
+                    <li>Fixed invisible text on macOS 15 (Sequoia) - explicit foreground color</li>
+                </ul>
+            ]]></description>
+            <enclosure url="https://github.com/starigade/endless.txt/releases/download/v1.1.3/endless.txt.dmg"
+                       type="application/octet-stream"
+                       sparkle:edSignature="Ftz/n1R8kga8vItDGpt6GnMVXVK1847cxiFl1bA2yZl1L3aqTG4VUJT6zWmf7xhFod5e3S4nBOhVpVvLNyB1DA=="
+                       length="2981866"/>
+        </item>
+
+        <item>
             <title>Version 1.1.2</title>
             <pubDate>Thu, 06 Feb 2025 00:00:00 +0000</pubDate>
             <sparkle:version>4</sparkle:version>

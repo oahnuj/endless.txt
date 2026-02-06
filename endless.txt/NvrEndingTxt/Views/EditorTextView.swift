@@ -362,8 +362,11 @@ struct EditorTextView: NSViewRepresentable {
             ?? NSFont.monospacedSystemFont(ofSize: settings.fontSize - 2, weight: .regular)
         let tinyFont = NSFont.systemFont(ofSize: 0.1)
 
-        // Reset font for full range first
+        // Reset font AND foreground color for full range first
+        // On macOS 15+, textView.textColor doesn't reliably apply to attributed text,
+        // so we must explicitly set foreground color for all text
         textStorage.addAttribute(.font, value: normalFont, range: fullRange)
+        textStorage.addAttribute(.foregroundColor, value: theme.nsTextColor, range: fullRange)
 
         // Pattern for timestamp-only lines: line that contains only [timestamp] with optional whitespace
         let timestampOnlyLinePattern = "^[ \\t]*\\[\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}(:\\d{2})?\\][ \\t]*\\n?"
