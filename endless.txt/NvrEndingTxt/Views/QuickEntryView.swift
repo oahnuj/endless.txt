@@ -79,11 +79,15 @@ struct QuickEntryTextEditor: NSViewRepresentable {
     @FocusState var isFocused: Bool
 
     func makeNSView(context: Context) -> NSScrollView {
+        let settings = AppSettings.shared
         let scrollView = NSScrollView()
         scrollView.hasVerticalScroller = false
         scrollView.hasHorizontalScroller = false
         scrollView.autohidesScrollers = true
-        scrollView.drawsBackground = false
+        // Both scroll view and text view must draw background — if only the text view
+        // draws it, the NSClipView's default white shows through when text is short
+        scrollView.drawsBackground = true
+        scrollView.backgroundColor = settings.theme.nsInputBackgroundColor
 
         // Create explicit TextKit 1 stack — on macOS 13+, NSTextView() defaults to
         // TextKit 2, which has rendering regressions on macOS 14-15 (invisible text).
@@ -102,7 +106,7 @@ struct QuickEntryTextEditor: NSViewRepresentable {
         textView.allowsUndo = true
         textView.isRichText = false
         textView.drawsBackground = true
-        textView.backgroundColor = AppSettings.shared.theme.nsInputBackgroundColor
+        textView.backgroundColor = settings.theme.nsInputBackgroundColor
         textView.textContainerInset = NSSize(width: 0, height: 0)
         textView.isAutomaticQuoteSubstitutionEnabled = false
         textView.isAutomaticDashSubstitutionEnabled = false
@@ -137,10 +141,11 @@ struct QuickEntryTextEditor: NSViewRepresentable {
         // reliably propagate, causing invisible text on dark themes
         textView.typingAttributes[.foregroundColor] = settings.effectiveNSTextColor
         textView.insertionPointColor = settings.theme.nsAccentColor
-        // Draw background directly on text view for reliability on macOS 15+
+        // Draw background on both scroll view and text view for reliability on macOS 15+
+        scrollView.drawsBackground = true
+        scrollView.backgroundColor = settings.theme.nsInputBackgroundColor
         textView.drawsBackground = true
         textView.backgroundColor = settings.theme.nsInputBackgroundColor
-        scrollView.drawsBackground = false
 
         // Apply foreground color directly to textStorage — on macOS 15, textView.textColor
         // alone doesn't reliably color existing attributed text

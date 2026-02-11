@@ -220,11 +220,12 @@ struct EditorTextView: NSViewRepresentable {
     private func applyTheme(to textView: NSTextView) {
         let theme = settings.theme
 
-        // Background - draw directly on the text view for reliability on macOS 15+
-        // (SwiftUI backgrounds behind NSViewRepresentable can be unreliable)
+        // Background - draw on both scroll view and text view for reliability on macOS 15+
+        // The scroll view's NSClipView defaults to white, so it must also be set
         textView.drawsBackground = true
         textView.backgroundColor = theme.nsBackgroundColor
-        textView.enclosingScrollView?.drawsBackground = false
+        textView.enclosingScrollView?.drawsBackground = true
+        textView.enclosingScrollView?.backgroundColor = theme.nsBackgroundColor
 
         // Text color and font
         textView.textColor = settings.effectiveNSTextColor
