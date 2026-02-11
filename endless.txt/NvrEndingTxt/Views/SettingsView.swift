@@ -406,6 +406,12 @@ struct AppearanceSettingsView: View {
                     }
                 }
                 .pickerStyle(.radioGroup)
+                .onChange(of: settings.themeName) { _ in
+                    // Reset custom text color on theme change so the new theme's
+                    // text color takes effect immediately
+                    settings.useCustomTextColor = false
+                    settings.customTextColorHex = ""
+                }
             }
 
             Section("Text Color") {

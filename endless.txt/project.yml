@@ -17,8 +17,8 @@ packages:
 
 settings:
   base:
-    MARKETING_VERSION: "1.1.11"
-    CURRENT_PROJECT_VERSION: "13"
+    MARKETING_VERSION: "1.1.12"
+    CURRENT_PROJECT_VERSION: "14"
     DEVELOPMENT_TEAM: "454K5WYH9Y"
 
 targets:
