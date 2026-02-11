@@ -7,6 +7,25 @@
         <language>en</language>
 
         <item>
+            <title>Version 1.1.12</title>
+            <pubDate>Tue, 11 Feb 2026 00:00:00 +0000</pubDate>
+            <sparkle:version>14</sparkle:version>
+            <sparkle:shortVersionString>1.1.12</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
+            <description><![CDATA[
+                <h2>endless.txt 1.1.12</h2>
+                <p>Theme switching fix</p>
+                <ul>
+                    <li>Text color now updates correctly when switching themes</li>
+                </ul>
+            ]]></description>
+            <enclosure url="https://github.com/starigade/endless.txt/releases/download/v1.1.12/endless.txt.dmg"
+                       type="application/octet-stream"
+                       sparkle:edSignature="KiTYSpUkcq8Z/L0pD0Bw0+9nQ3ui8ko6NFBcWeFV88qXLTQAZ4DR069aXTbLrpxmrHHibuw4SbIs6XysD5JiDA=="
+                       length="3059232"/>
+        </item>
+
+        <item>
             <title>Version 1.1.11</title>
             <pubDate>Tue, 11 Feb 2026 00:00:00 +0000</pubDate>
             <sparkle:version>13</sparkle:version>
